@@ -382,7 +382,7 @@
 <p><img src="https://cdn.nlark.com/yuque/0/2022/png/1442084/1642337233529-ec6c09a8-5be0-4552-bb44-f752331ad6f9.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>oat 格式文件是一种Android 系统自带的 elf 文件格式， 它不仅包含 classes.dex文件内容， 而且还包含由 classes.dex 文件转换的机器指令。 因此系统在APP 每次运行时重新转换原有 classes.dex 文件中的机器指令，就可以使用oat 已经转换好的机器指令在ART 模式下直接运行APP。</p>
 <p>转换后的 oat 文件存储在操作系统的 &#x2F;data&#x2F;dalvik-cache 目录下， 形式如下所示</p>
-<p>&#x2F;data&#x2F;dalvik-cache&#x2F;arm&#x2F;<a href="mailto:&#100;&#x61;&#x74;&#97;&#64;&#99;&#x6f;&#x6d;&#x2e;&#x64;&#101;&#109;&#x6f;&#x2e;&#x74;&#x65;&#x73;&#116;&#x2e;&#97;&#x70;&#x6b;">&#100;&#x61;&#x74;&#97;&#64;&#99;&#x6f;&#x6d;&#x2e;&#x64;&#101;&#109;&#x6f;&#x2e;&#x74;&#x65;&#x73;&#116;&#x2e;&#97;&#x70;&#x6b;</a>@classes.dex</p>
+<p>&#x2F;data&#x2F;dalvik-cache&#x2F;arm&#x2F;<a href="mailto:&#100;&#97;&#x74;&#97;&#x40;&#99;&#111;&#x6d;&#46;&#x64;&#101;&#109;&#x6f;&#46;&#116;&#101;&#x73;&#116;&#46;&#97;&#112;&#x6b;">&#100;&#97;&#x74;&#97;&#x40;&#99;&#111;&#x6d;&#46;&#x64;&#101;&#109;&#x6f;&#46;&#116;&#101;&#x73;&#116;&#46;&#97;&#112;&#x6b;</a>@classes.dex</p>
 <p>该文件目录包含APP的包名， 以确保不会覆盖任何其他的APP。 oat 文件中转换后的机器代码是与 Android 设备的 CPU架构相关的。</p>
 <p>系统将 oat 文件和相关库文件加载到内存中，并且直接映射到APP进程的内存区域， APP 的初始化从这里开始。</p>
 <p><img src="https://cdn.nlark.com/yuque/0/2022/png/1442084/1642340134310-9956cbf4-9951-4dd4-99cc-f160555e1727.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
