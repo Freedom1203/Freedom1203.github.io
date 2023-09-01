@@ -1,0 +1,1081 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Freedom 1203">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="整体加壳原理和脱壳技巧详解一、前言为了帮助更加方便的进行漏洞挖掘工作，前面我们通过了几篇文章详解的给大家介绍了动态调试技术、过反调试技术、Hook技术、过反Hook技术、抓包技术等，掌握了这些可以很方便的开展App漏洞挖掘工作，而最后我们还需要掌握一定的脱壳技巧，进行进一步助力我们漏洞挖掘的效率，本文主要介绍Android App加壳中的整体dex加壳，帮助大家掌握加壳的原理和脱壳的各种技能。 本">
+<meta property="og:type" content="article">
+<meta property="og:title" content="整体加壳原理和脱壳技巧详解">
+<meta property="og:url" content="https://freedom1203.github.io/2023/08/31/%E6%95%B4%E4%BD%93%E5%8A%A0%E5%A3%B3%E5%8E%9F%E7%90%86%E5%92%8C%E8%84%B1%E5%A3%B3%E6%8A%80%E5%B7%A7%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="Freedom1203">
+<meta property="og:description" content="整体加壳原理和脱壳技巧详解一、前言为了帮助更加方便的进行漏洞挖掘工作，前面我们通过了几篇文章详解的给大家介绍了动态调试技术、过反调试技术、Hook技术、过反Hook技术、抓包技术等，掌握了这些可以很方便的开展App漏洞挖掘工作，而最后我们还需要掌握一定的脱壳技巧，进行进一步助力我们漏洞挖掘的效率，本文主要介绍Android App加壳中的整体dex加壳，帮助大家掌握加壳的原理和脱壳的各种技能。 本">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_HWHGFFQYNTE4R7R.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_UHMM7HFWYUPGHG5.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_SCMEW4UR29WHZ5H.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_U3H8TXWP4AD2PPJ.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_RAGKRAPMYES3ECF.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_SV29GYJHB39FCYQ.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_HX9Q8BSEZ8JJMHC.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_JU6EE7TW5FT4XNU.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_RVC45CG4KPD9XVH.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_HJZ2467PCSSBCWC.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_27PM6NT4U7Y7DK8.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_M5RQV5H7S5KZ7U8.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_7PTGQ4KHBKHKEE7.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_CUKE55Y24F43P3K.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_WU78GNFZH329X95.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_GJ3YEYXBQ8K2A3M.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_9RTZWXTHR8AEJJX.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_UYXZMYY8RKFYXSZ.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_JJ9JWN6TTTSNK7B.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_BGVUCTN729TS33A.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_RMV5QQYXEF36SBK.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_DRNGWY7PATAJEHV.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_NGQ2BP6G5EZSW4R.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_KVCWJ6Y8NCNNZQD.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_NZVVEC54DSPPQWH.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_P3EBC5G3DZGYMBC.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_CHTX8YDZT9D6FCZ.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_8Q6V9G5SYB84HTH.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_EW57N5TGBD9XNPJ.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_G7H6JPREYMZ8XN4.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_9ZEY5KR5Q6ESSF7.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_7H83UJ6WPGBQWZJ.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_E2VAW4SHZENYAGQ.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_ZKW5FV6YD4JW9JF.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_A77NRB57ZAFQU8A.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_4H5QGXPPAQ9H6MM.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_BTCHHBZVJNJQJWV.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_MVB7WZJNEG6MBGK.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_5Z5RGDXNJ5ZW7NE.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_S4UPYX5XB7NCVPY.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_78UN4BZERGB3BGG.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_Q83V8D5NNXZZHPZ.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_KSHAXGKHDX5SJJ8.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_7728E3KQDVSZ8K8.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_M9VA8K6SUMFSAYV.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_2NU2A86H5SS2EPH.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_G5C7AYX3PW2J2ZC.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_SUNU9THMUQ39Q2K.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_P5QAN72MQ58SMKG.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_B9QRRUTD84V82ZK.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_CKUHKWSX46DS2N7.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_DC5HB2MNH48RB28.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_TU56BFRM8CJGT37.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_TC423VFDNC9CRXV.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_BWCY4SWHRTCQ283.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_6V47P8SJQFRRV4M.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_VGGG2SNEEHDHFY7.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_TN977TFA84YVTZ9.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_E7HWJDDJN5XDHQF.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_DHAKWU3K8GSXESP.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_3SKERM5ZAKPEVFC.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_A9VEF93XZXNSNK8.png">
+<meta property="og:image" content="https://bbs.pediy.com/97.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_DHAKWU3K8GSXESP.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_AST7YFB8U7KAPUW.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_G9A6TCJ8RHYCJPB.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_DPU2G6VP2W8AGFT.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_7NS398ERHB8V476.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_VUKFUET2WH2G8HM.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_N4CAU6X29TQ5CMT.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_A4VHQBKZNJFESXM.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_MJA6UTHVQM6M8RB.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_NK9UQCKAH22N9GY.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_88B2CXXK96K8YT6.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_RD7MFCWRA2TBWJG.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_YR5NB8X8376PY2D.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_H6PK6RS65D67D7W.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_X8PM73N62QYQ5HK.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_PPQMMV4MPRTE24E.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_RP8TR8UMH3WVQZN.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_AD9VCKDKHNADVH3.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_SVYRXHYJSQ5X8V5.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_J7X2KNVBH2YVPHQ.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_7UATJ4A4DV6QK5P.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_BJ38Z6649X4TVTZ.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_QURQ9CN7SS48V8F.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_UFMR5YPKHZQZ5PR.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_8Z7P3YBWGTJTJ27.png">
+<meta property="og:image" content="https://bbs.pediy.com/upload/attach/202206/905443_GUASR6BRXFUXTJ6.png">
+<meta property="article:published_time" content="2023-08-31T07:42:35.000Z">
+<meta property="article:modified_time" content="2023-09-01T06:31:54.650Z">
+<meta property="article:author" content="Freedom 1203">
+<meta property="article:tag" content="移动安全">
+<meta property="article:tag" content="HOOK">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://bbs.pediy.com/upload/attach/202206/905443_HWHGFFQYNTE4R7R.png">
+  
+  
+  
+  <title>整体加壳原理和脱壳技巧详解 - Freedom1203</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"freedom1203.github.io","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Freedom</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="整体加壳原理和脱壳技巧详解"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-08-31 15:42" pubdate>
+          2023年8月31日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          24k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          200 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">整体加壳原理和脱壳技巧详解</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="整体加壳原理和脱壳技巧详解"><a href="#整体加壳原理和脱壳技巧详解" class="headerlink" title="整体加壳原理和脱壳技巧详解"></a>整体加壳原理和脱壳技巧详解</h1><h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h2><p>为了帮助更加方便的进行漏洞挖掘工作，前面我们通过了几篇文章详解的给大家介绍了动态调试技术、过反调试技术、Hook技术、过反Hook技术、抓包技术等，掌握了这些可以很方便的开展App漏洞挖掘工作，而最后我们还需要掌握一定的脱壳技巧，进行进一步助力我们漏洞挖掘的效率，本文主要介绍Android App加壳中的整体dex加壳，帮助大家掌握加壳的原理和脱壳的各种技能。</p>
+<p>本文第二节主要讲述Android启动流程和加壳原理</p>
+<p>本文第三节主要介绍整体加壳的实现</p>
+<p>本文第四节主要讲当下脱壳点的概念</p>
+<p>本文第五节讲述现有的脱壳技巧</p>
+<h2 id="二、相关介绍"><a href="#二、相关介绍" class="headerlink" title="二、相关介绍"></a>二、相关介绍</h2><h3 id="1-Android-App启动流程"><a href="#1-Android-App启动流程" class="headerlink" title="1.Android App启动流程"></a>1.Android App启动流程</h3><h4 id="（1）Android系统启动流程"><a href="#（1）Android系统启动流程" class="headerlink" title="（1）Android系统启动流程"></a>（1）Android系统启动流程</h4><p>我们要彻底的了解App加壳原理，首先我们从了解App的启动流程出发，先于App启动之前，Android系统是启动最早，下面我们来详细查看一下Android系统的启动过程：</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_HWHGFFQYNTE4R7R.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>我在<a target="_blank" rel="noopener" href="https://blog.csdn.net/hzwailll/article/details/85339714">Xposed源码定制</a>一文中详细的讲解了Android的启动流程，简单来说就是：</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_UHMM7HFWYUPGHG5.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs perl">加载BootLoader <span class="hljs-string">``</span>-<span class="hljs-string">``</span>-<span class="hljs-string">``</span>&gt; 初始化内核 <span class="hljs-string">``</span>-<span class="hljs-string">``</span>-<span class="hljs-string">``</span>&gt; 启动init进程 <span class="hljs-string">``</span>-<span class="hljs-string">``</span>-<span class="hljs-string">``</span>&gt; init进程<span class="hljs-keyword">fork</span>出Zygote进程 <span class="hljs-string">``</span>-<span class="hljs-string">``</span>-<span class="hljs-string">``</span>&gt; Zygote进程<span class="hljs-keyword">fork</span>出SystemServer进程<br></code></pre></td></tr></table></figure>
+
+<p>我们就了解了最后Zygote进程fork出第一个进程：<code>SystemServer</code>进程，SystemServer主要完成了以下工作：</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_SCMEW4UR29WHZ5H.png" srcset="/img/loading.gif" lazyload alt="image-20220612154820955"></p>
+<p><strong>android app安装</strong></p>
+<p>首先这里我们先介绍一下<code>PackageManagerService</code>，其主要是完成Android中应用程序安装的服务，我们了解的Android应用程序安装的方式：</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs arcade">· 系统启动时安装，没有安装界面<span class="hljs-string">``</span>· 第三方应用安装，有安装界面，也是我们最熟悉的方式<span class="hljs-string">``</span>· ADB命令安装，没有安装界面<span class="hljs-string">``</span>· 通过各类应用市场安装，没有安装界面<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_U3H8TXWP4AD2PPJ.png" srcset="/img/loading.gif" lazyload alt="image-20220612154820955"></p>
+<p>虽然安装方式不同，但是最后四种方式都是通过PackageManagerService服务来完成应用程序的安装。而PackageManagerService服务则通过与Installd服务通信，发送具体的指令来执行应用程序的安装、卸载等工作</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> final <span class="hljs-title class_">IPackageManager</span> <span class="hljs-title function_">main</span>(<span class="hljs-params">Context context, Installer installer,<span class="hljs-string">``</span>  <span class="hljs-string">``</span><span class="hljs-built_in">boolean</span> factoryTest, <span class="hljs-built_in">boolean</span> onlyCore</span>) &#123;<span class="hljs-string">``</span>    <span class="hljs-string">``</span><span class="hljs-title class_">PackageManagerService</span> m <span class="hljs-string">``</span>=<span class="hljs-string">` `</span><span class="hljs-keyword">new</span> <span class="hljs-title class_">PackageManagerService</span>(context, installer, factoryTest, onlyCore);<span class="hljs-string">``</span>    <span class="hljs-string">``</span><span class="hljs-title class_">ServiceManager</span>.<span class="hljs-title function_">addService</span>(<span class="hljs-string">``</span><span class="hljs-string">&quot;package&quot;</span><span class="hljs-string">``</span>, m);<span class="hljs-string">``</span>  <span class="hljs-string">``</span><span class="hljs-keyword">return</span><span class="hljs-string">` `</span>m;<span class="hljs-string">``</span>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>应用程序在安装时涉及到如下几个重要目录：</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_RAGKRAPMYES3ECF.png" srcset="/img/loading.gif" lazyload alt="image-20220612154820955"></p>
+<p>我们了解完App的安装流程是由<code>PackageManagerService</code>，同理SystemServer启动了一个更加重要的服务<code>ActivityManagerService</code>, 而AMS其中很重要的一个作用就是启动<code>Launcher</code>进程，具体是怎么启动的，大家可以参考文章:<a target="_blank" rel="noopener" href="https://blog.csdn.net/itachi85/article/details/56669808">Android系统启动流程（四）Launcher启动过程与系统启动流程</a>，这里就不再详细讲解，而进入<code>Launcher</code>进程，我们就进入了App启动的流程。</p>
+<h4 id="（2）App启动流程"><a href="#（2）App启动流程" class="headerlink" title="（2）App启动流程"></a>（2）App启动流程</h4><p>Android系统启动的最后一步是启动一个Home应用程序，这个应用程序用来显示系统中已经安装的应用程序，这个Home应用程序就叫做Launcher。应用程序Launcher在启动过程中会请求PackageManagerService返回系统中已经安装的应用程序的信息，并将这些信息封装成一个快捷图标列表显示在系统屏幕上，这样用户可以通过点击这些快捷图标来启动相应的应用程序</p>
+<p>前面我们描述了AMS将Launcher启动，然后进入App启动流程，这里参考文章：<a target="_blank" rel="noopener" href="https://blog.csdn.net/hzwailll/article/details/85339714">ActivityThread的理解和APP的启动过程</a></p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_SV29GYJHB39FCYQ.png" srcset="/img/loading.gif" lazyload alt="image-20220612154820955"></p>
+<figure class="highlight nsis"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs nsis">(<span class="hljs-string">``</span><span class="hljs-number">1</span><span class="hljs-string">``</span>)点击桌面APP图标时，Launcher的startActivity()方法，通过Binder通信，调用<span class="hljs-params">system</span>_server进程中AMS服务的startActivity方法，发起启动请求<span class="hljs-string">``</span>(<span class="hljs-string">``</span><span class="hljs-number">2</span><span class="hljs-string">``</span>)<span class="hljs-params">system</span>_server进程接收到请求后，向Zygote进程发送创建进程的请求<span class="hljs-string">``</span>(<span class="hljs-string">``</span><span class="hljs-number">3</span><span class="hljs-string">``</span>)Zygote进程fork出App进程，并执行ActivityThread的main方法，创建ActivityThread线程，初始化MainLooper，主线程Handler，同时初始化ApplicationThread用于和AMS通信交互<span class="hljs-string">``</span>(<span class="hljs-string">``</span><span class="hljs-number">4</span><span class="hljs-string">``</span>)App进程，通过Binder向sytem_server进程发起attachApplication请求，这里实际上就是APP进程通过Binder调用sytem_server进程中AMS的attachApplication方法,AMS的attachApplication方法的作用是将ApplicationThread对象与AMS绑定<span class="hljs-string">``</span>(<span class="hljs-string">``</span><span class="hljs-number">5</span><span class="hljs-string">``</span>)<span class="hljs-params">system</span>_server进程在收到attachApplication的请求，进行一些准备工作后，再通过binder IPC向App进程发送handleBindApplication请求（初始化Application并调用onCreate方法）和scheduleLaunchActivity请求（创建启动Activity）<span class="hljs-string">``</span>(<span class="hljs-string">``</span><span class="hljs-number">6</span><span class="hljs-string">``</span>)App进程的binder线程（ApplicationThread）在收到请求后，通过handler向主线程发送BIND_APPLICATION和LAUNCH_ACTIVITY消息，这里注意的是AMS和主线程并不直接通信，而是AMS和主线程的内部类ApplicationThread通过Binder通信，ApplicationThread再和主线程通过Handler消息交互。<span class="hljs-string">``</span>(<span class="hljs-string">``</span><span class="hljs-number">7</span><span class="hljs-string">``</span>)主线程在收到Message后，创建Application并调用onCreate方法，再通过反射机制创建目标Activity，并回调Activity.onCreate()等方法<span class="hljs-string">``</span>(<span class="hljs-string">``</span><span class="hljs-number">8</span><span class="hljs-string">``</span>)到此，App便正式启动，开始进入Activity生命周期，执行完onCreate<span class="hljs-string">``</span>/<span class="hljs-string">``</span>onStart<span class="hljs-string">``</span>/<span class="hljs-string">``</span>onResume方法，UI渲染后显示APP主界面<br></code></pre></td></tr></table></figure>
+
+<p>显示详细信息</p>
+<p>到这里，我们的大致弄清了APP的启动流程，而这里我们就进入了加壳中十分重要的地方<code>ActivityTread</code></p>
+<h4 id="（3）ActivityThread启动流程"><a href="#（3）ActivityThread启动流程" class="headerlink" title="（3）ActivityThread启动流程"></a>（3）ActivityThread启动流程</h4><p>寒冰大佬在<a target="_blank" rel="noopener" href="https://bbs.pediy.com/thread-252630.htm">FART：ART环境下基于主动调用的自动化脱壳方案 </a>一文中讲述了ActivityThread.main()是进入App世界的大门，并由此展开了对加壳原理的讲述</p>
+<p>同理接下来，我们开始进行源码分析，了解ActivityThread的具体操作：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">xref<span class="hljs-regexp">/frameworks/</span>base<span class="hljs-regexp">/core/</span>java<span class="hljs-regexp">/android/</span>app/ActivityThread.java<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_HX9Q8BSEZ8JJMHC.png" srcset="/img/loading.gif" lazyload alt="image-20220612164337749"></p>
+<p>根据寒冰大佬描述，在ActivityThread完成实例化操作，调用thread.attach(false)完成一系列初始化准备工作，最后主线程进入消息循环，等待接收来自系统的消息。当收到系统发送来的bindapplication的进程间调用时，调用函数<code>handlebindapplication</code>来处理该请求</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-keyword">public</span> <span class="hljs-built_in">void</span> <span class="hljs-title function_">handleMessage</span>(<span class="hljs-params">Message msg</span>) &#123;<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>  <span class="hljs-string">``</span><span class="hljs-keyword">case</span> <span class="hljs-attr">BIND_APPLICATION</span>:<span class="hljs-string">``</span>    <span class="hljs-string">``</span><span class="hljs-title class_">Trace</span>.<span class="hljs-title function_">traceBegin</span>(<span class="hljs-title class_">Trace</span>.<span class="hljs-property">TRACE_TAG_ACTIVITY_MANAGER</span>, <span class="hljs-string">``</span><span class="hljs-string">&quot;bindApplication&quot;</span><span class="hljs-string">``</span>);<span class="hljs-string">``</span>    <span class="hljs-string">``</span><span class="hljs-title class_">AppBindData</span> data <span class="hljs-string">``</span>=<span class="hljs-string">` `</span>(<span class="hljs-title class_">AppBindData</span>)msg.<span class="hljs-property">obj</span>;<span class="hljs-string">``</span>    <span class="hljs-string">``</span><span class="hljs-title function_">handleBindApplication</span>(data);<span class="hljs-string">``</span>    <span class="hljs-string">``</span><span class="hljs-title class_">Trace</span>.<span class="hljs-title function_">traceEnd</span>(<span class="hljs-title class_">Trace</span>.<span class="hljs-property">TRACE_TAG_ACTIVITY_MANAGER</span>);<span class="hljs-string">``</span>    <span class="hljs-string">``</span><span class="hljs-keyword">break</span><span class="hljs-string">``</span>;<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在处理消息过程，很很明显进入了<code>handlebindapplication</code>函数</p>
+<p>这里我再用寒冰大佬文章的内容：</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_JU6EE7TW5FT4XNU.png" srcset="/img/loading.gif" lazyload alt="image-20220612164337749"></p>
+<p>我们定位第四步，Application进行实例化，然后进入<code>makeApplication</code></p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_RVC45CG4KPD9XVH.png" srcset="/img/loading.gif" lazyload alt="image-20220612165753498"></p>
+<p>然后我们进入<code>newApplication</code></p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_HJZ2467PCSSBCWC.png" srcset="/img/loading.gif" lazyload alt="image-20220612170020202"></p>
+<p>这里我们可以看见完成了两件事：</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs arcade">（<span class="hljs-string">``</span><span class="hljs-number">1</span><span class="hljs-string">``</span>）完成了Application的实例化<span class="hljs-string">``</span>（<span class="hljs-string">``</span><span class="hljs-number">2</span><span class="hljs-string">``</span>）并调用Application.attach()函数<br></code></pre></td></tr></table></figure>
+
+<p>然后我们继续进入<code>Application.attach()</code>函数</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_27PM6NT4U7Y7DK8.png" srcset="/img/loading.gif" lazyload alt="image-20220612170305879"></p>
+<p>这里我们就进一步调用了<code>attachBaseContext()</code>方法</p>
+<p>最后回到<code>handlebindapplication</code>中执行第6步，进入callApplicationOnCreate()函数</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_M5RQV5H7S5KZ7U8.png" srcset="/img/loading.gif" lazyload alt="image-20220612170604374"></p>
+<p>就执行了<code>Application.onCreate()方法</code></p>
+<p>总结：</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs arcade">从上可知, App的运行流程是<span class="hljs-string">``</span>  <span class="hljs-string">``</span>初始化————&gt;Application的构造函数————&gt;Application.attachBaseContext()————&gt;Application.onCreate()函数<span class="hljs-string">``</span>最后才会进入MainActivity中的attachBaseContext函数、onCreate函数<span class="hljs-string">``</span>所以加壳厂商要在程序正式执行前，也就是上面的流程中进行动态加载和类加载器的修正，这样才能对加密的dex进行释放，而一般的<span class="hljs-string">``</span><span class="hljs-number">1</span><span class="hljs-string">``</span>厂商往往选择在Application中的attachBaseContext或onCreate函数进行<br></code></pre></td></tr></table></figure>
+
+<p>这里我附上网上一个大佬的详细执行流程图：</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_7PTGQ4KHBKHKEE7.png" srcset="/img/loading.gif" lazyload alt="image-20220612170604374"></p>
+<h3 id="2-整体加壳原理详解"><a href="#2-整体加壳原理详解" class="headerlink" title="2.整体加壳原理详解"></a>2.整体加壳原理详解</h3><h4 id="（1）整体加壳原理"><a href="#（1）整体加壳原理" class="headerlink" title="（1）整体加壳原理"></a>（1）整体加壳原理</h4><p>Dex整体加壳可以理解为在加密的源Apk程序外面有套上了一层外壳，简单过程为：</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_CUKE55Y24F43P3K.png" srcset="/img/loading.gif" lazyload alt="image-20220424141415510"></p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_WU78GNFZH329X95.png" srcset="/img/loading.gif" lazyload alt="image-20220424141415510"></p>
+<p>如何对App进行加一层外壳呢，这里就需要应用动态加载的原理，关于动态加载和类加载器，我在上篇文章中有详细讲解：<a target="_blank" rel="noopener" href="https://bbs.pediy.com/thread-271538.htm">Android加壳脱壳学习（1）——动态加载和类加载机制详解</a></p>
+<p>这里我们可以用一个案例来进一步讲述，我们打开一个整体加壳的样本</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_GJ3YEYXBQ8K2A3M.png" srcset="/img/loading.gif" lazyload alt="image-20220612172943793"></p>
+<p>我们很明显看见，除了一个代理类Application，其他相关的代码信息都无法发现</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_9RTZWXTHR8AEJJX.png" srcset="/img/loading.gif" lazyload alt="image-20220612173124912"></p>
+<p>在代理类中反射调用了一些方法，很显然我们解析出的结果都无法查找，很明显就说明在Application.attchBaseContext()和Application.onCreate()中必须要完成对源加密的dex的动态加载和解密</p>
+<p>结合上面的描述，App加载应用解析时就是这个流程：</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs lasso">（<span class="hljs-string">``</span><span class="hljs-number">1</span><span class="hljs-string">``</span>）BootClassLoader加载系统核心库<span class="hljs-string">``</span>（<span class="hljs-string">``</span><span class="hljs-number">2</span><span class="hljs-string">``</span>）PathClassLoader加载APP自身dex<span class="hljs-string">``</span>（<span class="hljs-string">``</span><span class="hljs-number">3</span><span class="hljs-string">``</span>）进入APP自身组件，解析AndroidManifest.<span class="hljs-built_in">xml</span>，然后查找Application代理<span class="hljs-string">``</span>（<span class="hljs-string">``</span><span class="hljs-number">4</span><span class="hljs-string">``</span>）调用声明Application的attachBaseContext()对源程序进行动态加载或解密<span class="hljs-string">``</span>（<span class="hljs-string">``</span><span class="hljs-number">5</span><span class="hljs-string">``</span>）调用声明Application的onCreate()对源程序进行动态加载或解密<span class="hljs-string">``</span>（<span class="hljs-string">``</span><span class="hljs-number">6</span><span class="hljs-string">``</span>）进入MainActivity中的attachBaseContext()，然后进入onCreate()函数，执行源程序代码<br></code></pre></td></tr></table></figure>
+
+<h4 id="（2）类加载器的修正"><a href="#（2）类加载器的修正" class="headerlink" title="（2）类加载器的修正"></a>（2）类加载器的修正</h4><p>上面我们已经很清晰的了解了壳加载的流程，我们很明显的意识到一个问题，我们从头到尾都是用<code>PathClassLoader</code>来加载dex，而上篇文章我在讲类加载器的过程中说过</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_UYXZMYY8RKFYXSZ.png" srcset="/img/loading.gif" lazyload alt="image-20220612185103615"></p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ruby"><span class="hljs-title class_">Android</span>中的<span class="hljs-title class_">ClassLoader</span>类型分为系统<span class="hljs-title class_">ClassLoader</span>和自定义<span class="hljs-title class_">ClassLoader</span>。其中系统<span class="hljs-title class_">ClassLoader</span>包括<span class="hljs-string">``</span><span class="hljs-number">3</span><span class="hljs-string">``</span>种是<span class="hljs-title class_">BootClassLoader</span>、<span class="hljs-title class_">DexClassLoader</span>、<span class="hljs-title class_">PathClassLoader</span><span class="hljs-string">``</span>(<span class="hljs-string">``</span><span class="hljs-number">1</span><span class="hljs-string">``</span>)<span class="hljs-title class_">BootClassLoader</span><span class="hljs-symbol">:Android</span>平台上所有<span class="hljs-title class_">Android</span>系统启动时会使用<span class="hljs-title class_">BootClassLoader</span>来预加载常用的类<span class="hljs-string">``</span>(<span class="hljs-string">``</span><span class="hljs-number">2</span><span class="hljs-string">``</span>)<span class="hljs-title class_">BaseDexClassLoader</span><span class="hljs-symbol">:</span>实际应用层类文件的加载，而真正的加载委托给pathList来完成<span class="hljs-string">``</span>(<span class="hljs-string">``</span><span class="hljs-number">3</span><span class="hljs-string">``</span>)<span class="hljs-title class_">DexClassLoader</span><span class="hljs-symbol">:</span>可以加载dex文件以及包含dex的压缩文件(apk,dex,jar,<span class="hljs-string">``</span>zip<span class="hljs-string">``</span>),可以安装一个未安装的apk文件，一般为自定义类加载器<span class="hljs-string">``</span>(<span class="hljs-string">``</span><span class="hljs-number">4</span><span class="hljs-string">``</span>)<span class="hljs-title class_">PathClassLoader</span><span class="hljs-symbol">:</span>可以加载系统类和应用程序的类，通常用来加载已安装的apk的dex文件<span class="hljs-string">` `</span>补充：<span class="hljs-string">``</span><span class="hljs-title class_">Android</span> 提供的原生加载器叫做基础类加载器，包括：<span class="hljs-title class_">BootClassLoader</span>，<span class="hljs-title class_">PathClassLoader</span>，<span class="hljs-title class_">DexClassLoader</span>，<span class="hljs-title class_">InMemoryDexClassLoader</span>（<span class="hljs-title class_">Android</span> <span class="hljs-string">``</span><span class="hljs-number">8.0</span><span class="hljs-string">` `</span>引入），<span class="hljs-title class_">DelegateLastClassLoader</span>（<span class="hljs-title class_">Android</span> <span class="hljs-string">``</span><span class="hljs-number">8.1</span><span class="hljs-string">` `</span>引入）<br></code></pre></td></tr></table></figure>
+
+<p>我们要想动态加载dex文件必须使用自定义的<code>DexClassLoader</code>，那我们直接使用<code>DexClassLoader</code>进行加载就可以么，很显然不行，还是会报异常</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">DexClassLoader加载的类是没有组件生命周期的，即DexClassLoader即使通过对APK的动态加载完成了对组件类的加载，当系统启动该组件时，依然会出现加载类失败的异常<br></code></pre></td></tr></table></figure>
+
+<p>所以我们要想使用DexClassLoader进行动态加载dex，我们需要进行类加载器的修正</p>
+<p>当前实现类加载器的修正，主要有两种方案：</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs arcade">（<span class="hljs-string">``</span><span class="hljs-number">1</span><span class="hljs-string">``</span>）替换系统组件类加载器为我们的DexClassLoader，同时设置DexClassLoader的parent为系统组件加载器<span class="hljs-string">``</span>（<span class="hljs-string">``</span><span class="hljs-number">2</span><span class="hljs-string">``</span>）打破原有的双亲委派关系，在系统组件类加载器PathClassLoader和BootClassLoader的中间插入我们自己的DexClassLoader<br></code></pre></td></tr></table></figure>
+
+<h5 id="类加载器替换"><a href="#类加载器替换" class="headerlink" title="&lt;1&gt;类加载器替换"></a>&lt;1&gt;类加载器替换</h5><p>怎么去替换系统的类加载器了，这就和我们上面分析的ActivityThread中<code>LoadedApk</code>有关了，<code>LoadedApk</code>主要负责加载一个Apk程序，我们进一步分析源码</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_JJ9JWN6TTTSNK7B.png" srcset="/img/loading.gif" lazyload alt="image-20220612190524422"></p>
+<p>很明显，我们可以想到我们通过反射获取mclassLoader，然后使用我们的DexClassLoader进行替换，不就可以成功的让DexClassLoader拥有生命周期了么</p>
+<p>源码实现：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs typescript">总结：<span class="hljs-string">``</span>  <span class="hljs-string">``</span>（<span class="hljs-string">``</span><span class="hljs-number">1</span><span class="hljs-string">``</span>）获取<span class="hljs-title class_">ActivityThread</span>实例<span class="hljs-string">``</span>  <span class="hljs-string">``</span>（<span class="hljs-string">``</span><span class="hljs-number">2</span><span class="hljs-string">``</span>）通过反射获取类加载器<span class="hljs-string">``</span>  <span class="hljs-string">``</span>（<span class="hljs-string">``</span><span class="hljs-number">3</span><span class="hljs-string">``</span>）获取<span class="hljs-title class_">LoadedApk</span><span class="hljs-string">``</span>  <span class="hljs-string">``</span>（<span class="hljs-string">``</span><span class="hljs-number">4</span><span class="hljs-string">``</span>）获取mClassLoader系统类加载器<span class="hljs-string">``</span>  <span class="hljs-string">``</span>（<span class="hljs-string">``</span><span class="hljs-number">5</span><span class="hljs-string">``</span>）替换自定义类加载器为系统类加载器<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-built_in">void</span> <span class="hljs-title function_">replaceClassLoader</span>(<span class="hljs-params">Context context,ClassLoader dexClassLoader</span>)&#123;<span class="hljs-string">``</span>    <span class="hljs-string">``</span><span class="hljs-title class_">ClassLoader</span> pathClassLoader <span class="hljs-string">``</span>=<span class="hljs-string">` `</span><span class="hljs-title class_">MainActivity</span>.<span class="hljs-string">``</span><span class="hljs-keyword">class</span><span class="hljs-string">``</span>.<span class="hljs-title function_">getClassLoader</span>();<span class="hljs-string">``</span>    <span class="hljs-string">``</span><span class="hljs-keyword">try</span><span class="hljs-string">` `</span>&#123;<span class="hljs-string">``</span>      <span class="hljs-string">``</span>/<span class="hljs-string">``</span>/<span class="hljs-string">``</span><span class="hljs-number">1.</span><span class="hljs-string">``</span>获取<span class="hljs-title class_">ActivityThread</span>实例<span class="hljs-string">``</span>      <span class="hljs-string">``</span><span class="hljs-title class_">Class</span> <span class="hljs-title class_">ActivityThread</span> <span class="hljs-string">``</span>=<span class="hljs-string">` `</span>pathClassLoader.<span class="hljs-title function_">loadClass</span>(<span class="hljs-string">``</span><span class="hljs-string">&quot;android.app.ActivityThread&quot;</span><span class="hljs-string">``</span>);<span class="hljs-string">``</span>      <span class="hljs-string">``</span><span class="hljs-title class_">Method</span> currentActivityThread <span class="hljs-string">``</span>=<span class="hljs-string">` `</span><span class="hljs-title class_">ActivityThread</span>.<span class="hljs-title function_">getDeclaredMethod</span>(<span class="hljs-string">``</span><span class="hljs-string">&quot;currentActivityThread&quot;</span><span class="hljs-string">``</span>);<span class="hljs-string">``</span>      <span class="hljs-string">``</span><span class="hljs-title class_">Object</span><span class="hljs-string">` `</span>activityThreadObj <span class="hljs-string">``</span>=<span class="hljs-string">` `</span>currentActivityThread.<span class="hljs-title function_">invoke</span>(<span class="hljs-literal">null</span>);<span class="hljs-string">``</span>      <span class="hljs-string">``</span>/<span class="hljs-string">``</span>/<span class="hljs-string">``</span><span class="hljs-number">2.</span><span class="hljs-string">``</span>通过反射获得类加载器<span class="hljs-string">``</span>      <span class="hljs-string">``</span>/<span class="hljs-string">``</span>/<span class="hljs-string">``</span>final <span class="hljs-title class_">ArrayMap</span>&lt;<span class="hljs-title class_">String</span>, <span class="hljs-title class_">WeakReference</span>&lt;<span class="hljs-title class_">LoadedApk</span>&gt;&gt; mPackages <span class="hljs-string">``</span>=<span class="hljs-string">` `</span><span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayMap</span>&lt;&gt;();<span class="hljs-string">``</span>      <span class="hljs-string">``</span><span class="hljs-title class_">Field</span> mPackagesField <span class="hljs-string">``</span>=<span class="hljs-string">` `</span><span class="hljs-title class_">ActivityThread</span>.<span class="hljs-title function_">getDeclaredField</span>(<span class="hljs-string">``</span><span class="hljs-string">&quot;mPackages&quot;</span><span class="hljs-string">``</span>);<span class="hljs-string">``</span>      <span class="hljs-string">``</span>mPackagesField.<span class="hljs-title function_">setAccessible</span>(<span class="hljs-literal">true</span>);<span class="hljs-string">``</span>      <span class="hljs-string">``</span>/<span class="hljs-string">``</span>/<span class="hljs-string">``</span><span class="hljs-number">3.</span><span class="hljs-string">``</span>拿到<span class="hljs-title class_">LoadedApk</span><span class="hljs-string">``</span>      <span class="hljs-string">``</span><span class="hljs-title class_">ArrayMap</span> mPackagesObj <span class="hljs-string">``</span>=<span class="hljs-string">` `</span>(<span class="hljs-title class_">ArrayMap</span>) mPackagesField.<span class="hljs-title function_">get</span>(activityThreadObj);<span class="hljs-string">``</span>      <span class="hljs-string">``</span><span class="hljs-title class_">String</span> packagename <span class="hljs-string">``</span>=<span class="hljs-string">` `</span>context.<span class="hljs-title function_">getPackageName</span>();<span class="hljs-string">``</span>      <span class="hljs-string">``</span><span class="hljs-title class_">WeakReference</span> wr <span class="hljs-string">``</span>=<span class="hljs-string">` `</span>(<span class="hljs-title class_">WeakReference</span>) mPackagesObj.<span class="hljs-title function_">get</span>(packagename);<span class="hljs-string">``</span>      <span class="hljs-string">``</span><span class="hljs-title class_">Object</span><span class="hljs-string">` `</span><span class="hljs-title class_">LoadApkObj</span> <span class="hljs-string">``</span>=<span class="hljs-string">` `</span>wr.<span class="hljs-title function_">get</span>();<span class="hljs-string">``</span>      <span class="hljs-string">``</span>/<span class="hljs-string">``</span>/<span class="hljs-string">``</span><span class="hljs-number">4.</span><span class="hljs-string">``</span>拿到mclassLoader<span class="hljs-string">``</span>      <span class="hljs-string">``</span><span class="hljs-title class_">Class</span> <span class="hljs-title class_">LoadedApkClass</span> <span class="hljs-string">``</span>=<span class="hljs-string">` `</span>pathClassLoader.<span class="hljs-title function_">loadClass</span>(<span class="hljs-string">``</span><span class="hljs-string">&quot;android.app.LoadedApk&quot;</span><span class="hljs-string">``</span>);<span class="hljs-string">``</span>      <span class="hljs-string">``</span><span class="hljs-title class_">Field</span> mClassLoaderField <span class="hljs-string">``</span>=<span class="hljs-string">` `</span><span class="hljs-title class_">LoadedApkClass</span>.<span class="hljs-title function_">getDeclaredField</span>(<span class="hljs-string">``</span><span class="hljs-string">&quot;mClassLoader&quot;</span><span class="hljs-string">``</span>);<span class="hljs-string">``</span>      <span class="hljs-string">``</span>mClassLoaderField.<span class="hljs-title function_">setAccessible</span>(<span class="hljs-literal">true</span>);<span class="hljs-string">``</span>      <span class="hljs-string">``</span><span class="hljs-title class_">Object</span><span class="hljs-string">` `</span>mClassLoader <span class="hljs-string">``</span>=<span class="hljs-string">``</span>mClassLoaderField.<span class="hljs-title function_">get</span>(<span class="hljs-title class_">LoadApkObj</span>);<span class="hljs-string">``</span>      <span class="hljs-string">``</span><span class="hljs-title class_">Log</span>.<span class="hljs-title function_">e</span>(<span class="hljs-string">``</span><span class="hljs-string">&quot;mClassLoader&quot;</span><span class="hljs-string">``</span>,mClassLoader.<span class="hljs-title function_">toString</span>());<span class="hljs-string">``</span>      <span class="hljs-string">``</span>/<span class="hljs-string">``</span>/<span class="hljs-string">``</span><span class="hljs-number">5.</span><span class="hljs-string">``</span>将系统组件<span class="hljs-title class_">ClassLoader</span>给替换<span class="hljs-string">``</span>      <span class="hljs-string">``</span>mClassLoaderField.<span class="hljs-string">``</span>set<span class="hljs-string">``</span>(<span class="hljs-title class_">LoadApkObj</span>,dexClassLoader);<span class="hljs-string">``</span>    <span class="hljs-string">``</span>&#125;<span class="hljs-string">``</span>    <span class="hljs-string">``</span><span class="hljs-keyword">catch</span> (<span class="hljs-title class_">ClassNotFoundException</span> e) &#123;<span class="hljs-string">``</span>      <span class="hljs-string">``</span>e.<span class="hljs-title function_">printStackTrace</span>();<span class="hljs-string">``</span>    <span class="hljs-string">``</span>&#125; <span class="hljs-keyword">catch</span> (<span class="hljs-title class_">NoSuchMethodException</span> e) &#123;<span class="hljs-string">``</span>      <span class="hljs-string">``</span>e.<span class="hljs-title function_">printStackTrace</span>();<span class="hljs-string">``</span>    <span class="hljs-string">``</span>&#125; <span class="hljs-keyword">catch</span> (<span class="hljs-title class_">IllegalAccessException</span> e) &#123;<span class="hljs-string">``</span>      <span class="hljs-string">``</span>e.<span class="hljs-title function_">printStackTrace</span>();<span class="hljs-string">``</span>    <span class="hljs-string">``</span>&#125; <span class="hljs-keyword">catch</span> (<span class="hljs-title class_">InvocationTargetException</span> e) &#123;<span class="hljs-string">``</span>      <span class="hljs-string">``</span>e.<span class="hljs-title function_">printStackTrace</span>();<span class="hljs-string">``</span>    <span class="hljs-string">``</span>&#125; <span class="hljs-keyword">catch</span> (<span class="hljs-title class_">NoSuchFieldException</span> e) &#123;<span class="hljs-string">``</span>      <span class="hljs-string">``</span>e.<span class="hljs-title function_">printStackTrace</span>();<span class="hljs-string">``</span>    <span class="hljs-string">``</span>&#125;<span class="hljs-string">``</span>  <span class="hljs-string">``</span>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>显示详细信息</p>
+<h5 id="类加载器插入"><a href="#类加载器插入" class="headerlink" title="&lt;2&gt;类加载器插入"></a>&lt;2&gt;类加载器插入</h5><p>还有一种方案，动态加载中我们讲述了类加载器的双亲委派机制，就是说我们的类加载器刚拿到类，并不会直接进行加载，而是先判断自己是否加载，如果没有加载则给自己的父类，父类再给父类，所以我们让DexClassLoader成为PathClassLoader的父类，这样就可以解决DexClassLoader生命周期的问题</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs arcade">总结：<span class="hljs-string">``</span>  <span class="hljs-string">``</span>（<span class="hljs-string">``</span><span class="hljs-number">1</span><span class="hljs-string">``</span>）将DexClassloader父节点设置为BootClassLoader<span class="hljs-string">``</span>  <span class="hljs-string">``</span>（<span class="hljs-string">``</span><span class="hljs-number">2</span><span class="hljs-string">``</span>）将PathClassLoader父节点设置为DexClassloader<br></code></pre></td></tr></table></figure>
+
+<p>代码实现：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-built_in">void</span> <span class="hljs-title function_">replaceClassLoader</span>(<span class="hljs-params">Context context, ClassLoader dexClassLoader</span>)&#123;<span class="hljs-string">``</span>    <span class="hljs-string">``</span>/<span class="hljs-string">``</span>/<span class="hljs-string">``</span>将pathClassLoader父节点设置为<span class="hljs-title class_">DexClassLoader</span><span class="hljs-string">``</span>    <span class="hljs-string">``</span><span class="hljs-title class_">ClassLoader</span> pathClassLoaderobj <span class="hljs-string">``</span>=<span class="hljs-string">` `</span>context.<span class="hljs-title function_">getClassLoader</span>();<span class="hljs-string">``</span>    <span class="hljs-string">``</span><span class="hljs-title class_">Class</span>&lt;<span class="hljs-title class_">ClassLoader</span>&gt; <span class="hljs-title class_">ClassLoaderClass</span> <span class="hljs-string">``</span>=<span class="hljs-string">` `</span><span class="hljs-title class_">ClassLoader</span>.<span class="hljs-string">``</span><span class="hljs-keyword">class</span><span class="hljs-string">``</span>;<span class="hljs-string">``</span>    <span class="hljs-string">``</span><span class="hljs-keyword">try</span><span class="hljs-string">` `</span>&#123;<span class="hljs-string">``</span>      <span class="hljs-string">``</span><span class="hljs-title class_">Field</span> parent <span class="hljs-string">``</span>=<span class="hljs-string">` `</span><span class="hljs-title class_">ClassLoaderClass</span>.<span class="hljs-title function_">getDeclaredField</span>(<span class="hljs-string">``</span><span class="hljs-string">&quot;parent&quot;</span><span class="hljs-string">``</span>);<span class="hljs-string">``</span>      <span class="hljs-string">``</span>parent.<span class="hljs-title function_">setAccessible</span>(<span class="hljs-literal">true</span>);<span class="hljs-string">``</span>      <span class="hljs-string">``</span>parent.<span class="hljs-string">``</span>set<span class="hljs-string">``</span>(pathClassLoaderobj,dexClassLoader);<span class="hljs-string">``</span>    <span class="hljs-string">``</span>&#125; <span class="hljs-keyword">catch</span> (<span class="hljs-title class_">NoSuchFieldException</span> e) &#123;<span class="hljs-string">``</span>      <span class="hljs-string">``</span>e.<span class="hljs-title function_">printStackTrace</span>();<span class="hljs-string">``</span>    <span class="hljs-string">``</span>&#125; <span class="hljs-keyword">catch</span> (<span class="hljs-title class_">IllegalAccessException</span> e) &#123;<span class="hljs-string">``</span>      <span class="hljs-string">``</span>e.<span class="hljs-title function_">printStackTrace</span>();<span class="hljs-string">``</span>    <span class="hljs-string">``</span>&#125;<span class="hljs-string">` `</span>  <span class="hljs-string">``</span>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>显示详细信息</p>
+<p>完成壳加载器的修正后，我们就可以正常的加载dex了</p>
+<h2 id="三、整体加壳案例实现"><a href="#三、整体加壳案例实现" class="headerlink" title="三、整体加壳案例实现"></a>三、整体加壳案例实现</h2><p>前面我们详细讲述了App运行机制和整体加壳的实现机制，下面我们就按照前面的讲述，来实现一个简单的整体加壳案例</p>
+<p>实验准备：</p>
+<h3 id="1-编写源程序"><a href="#1-编写源程序" class="headerlink" title="1.编写源程序"></a>1.编写源程序</h3><p><img src="https://bbs.pediy.com/upload/attach/202206/905443_BGVUCTN729TS33A.png" srcset="/img/loading.gif" lazyload alt="image-20220612193114397"></p>
+<p>这就是我们的源程序，源程序运行，我们会在日志中看见我们打印的信息，然后我们生成dex文件</p>
+<h3 id="2-编写壳程序"><a href="#2-编写壳程序" class="headerlink" title="2.编写壳程序"></a>2.编写壳程序</h3><h4 id="（1）准备工作"><a href="#（1）准备工作" class="headerlink" title="（1）准备工作"></a>（1）准备工作</h4><p>将dex文件上传sdcard，并给应用设置存储权限</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_RMV5QQYXEF36SBK.png" srcset="/img/loading.gif" lazyload alt="image-20220612195812601"></p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_DRNGWY7PATAJEHV.png" srcset="/img/loading.gif" lazyload alt="image-20220612200126917"></p>
+<h4 id="（2）编写代理类"><a href="#（2）编写代理类" class="headerlink" title="（2）编写代理类"></a>（2）编写代理类</h4><p>我们首先编写代理类，模仿上面的加壳应用</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_NGQ2BP6G5EZSW4R.png" srcset="/img/loading.gif" lazyload alt="image-20220612193735398"></p>
+<p>然后我们设置AndroidManifest.xml中的代理类别</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_KVCWJ6Y8NCNNZQD.png" srcset="/img/loading.gif" lazyload alt="image-20220612193921062"></p>
+<p>然后我们选择在attachBaseContext或onCreate中对我们的dex进行动态加载和类加载器修正即可，因为这里我们源dex并未进行加密，所以也无需解密的过程</p>
+<p>然后加入导入类的Activity</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_NZVVEC54DSPPQWH.png" srcset="/img/loading.gif" lazyload alt="image-20220612215843088"></p>
+<h4 id="（3）动态加载"><a href="#（3）动态加载" class="headerlink" title="（3）动态加载"></a>（3）动态加载</h4><p>我们进行动态加载classes.dex</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_P3EBC5G3DZGYMBC.png" srcset="/img/loading.gif" lazyload alt="image-20220612200319851"></p>
+<p>然后使用上面的一种方法进行类加载器修正</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_CHTX8YDZT9D6FCZ.png" srcset="/img/loading.gif" lazyload alt="image-20220612215713138"></p>
+<p>然后运行</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_8Q6V9G5SYB84HTH.png" srcset="/img/loading.gif" lazyload alt="image-20220612215745595"></p>
+<p>运行成功，说明我们的整体加壳成功</p>
+<h2 id="四、脱壳点相关概念详解"><a href="#四、脱壳点相关概念详解" class="headerlink" title="四、脱壳点相关概念详解"></a>四、脱壳点相关概念详解</h2><p>上面我们已经理解了APP加壳的基本原理，下面我们进一步来学习如何进行脱壳，Android APP脱壳绕不开<code>DexFile</code>、<code>ArtMethod</code>两个概念，这两个在脱壳中扮演的至关重要的地位，无数的脱壳点都是从其演变而来。</p>
+<h3 id="1-Dex加载流程"><a href="#1-Dex加载流程" class="headerlink" title="1.Dex加载流程"></a>1.Dex加载流程</h3><p>我们在分析脱壳点过程中，首先就需要明白Dex加载的基本流程</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_EW57N5TGBD9XNPJ.png" srcset="/img/loading.gif" lazyload alt="image-20220612215745595"></p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs arcade">DexPathList:该类主要用来查找Dex、SO库的路径，并这些路径整体呈一个数组<span class="hljs-string">``</span>Element:根据多路径的分隔符“;”将dexPath转换成<span class="hljs-string">``</span>File<span class="hljs-string">``</span>列表，记录所有的dexFile<span class="hljs-string">``</span>DexFile:用来描述Dex文件，Dex的加载以及Class的查找都是由该类调用它的native方法完成的<br></code></pre></td></tr></table></figure>
+
+<p>我们依次来分析这个过程中的源码</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-title class_">DexPathList</span><br>/<span class="hljs-string">``</span>libcore<span class="hljs-string">``</span>/<span class="hljs-string">``</span>dalvik<span class="hljs-string">``</span>/<span class="hljs-string">``</span>src<span class="hljs-string">``</span>/<span class="hljs-string">``</span>main<span class="hljs-string">``</span>/<span class="hljs-string">``</span>java<span class="hljs-string">``</span>/<span class="hljs-string">``</span>dalvik<span class="hljs-string">``</span>/<span class="hljs-string">``</span>system<span class="hljs-string">``</span>/<span class="hljs-string">``</span><span class="hljs-title class_">DexPathList</span>.<span class="hljs-property">java</span><span class="hljs-string">``</span><span class="hljs-keyword">public</span> <span class="hljs-title class_">DexPathList</span>(<span class="hljs-title class_">ClassLoader</span> definingContext, <span class="hljs-title class_">String</span> dexPath,<span class="hljs-string">``</span>      <span class="hljs-string">``</span><span class="hljs-title class_">String</span> librarySearchPath, <span class="hljs-string">``</span><span class="hljs-title class_">File</span><span class="hljs-string">` `</span>optimizedDirectory) &#123;<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">`   `</span>  <span class="hljs-string">``</span><span class="hljs-variable language_">this</span>.<span class="hljs-property">dexElements</span> <span class="hljs-string">``</span>=<span class="hljs-string">` `</span><span class="hljs-title function_">makeDexElements</span>(<span class="hljs-title function_">splitDexPath</span>(dexPath), optimizedDirectory,<span class="hljs-string">``</span>                     <span class="hljs-string">``</span>suppressedExceptions, definingContext);  <span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">` `</span>      <span class="hljs-string">``</span>&#125;<br>makeDexElements<br><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-title class_">Element</span>[] <span class="hljs-title function_">makeDexElements</span>(<span class="hljs-params"><span class="hljs-string">``</span>List<span class="hljs-string">``</span>&lt;<span class="hljs-string">``</span>File<span class="hljs-string">``</span>&gt; files, <span class="hljs-string">``</span>File<span class="hljs-string">` `</span>optimizedDirectory,<span class="hljs-string">``</span>     <span class="hljs-string">``</span>List<span class="hljs-string">``</span>&lt;IOException&gt; suppressedExceptions, ClassLoader loader</span>) &#123;<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">`      `</span>    <span class="hljs-string">``</span><span class="hljs-title class_">DexFile</span> dex <span class="hljs-string">``</span>=<span class="hljs-string">` `</span><span class="hljs-title function_">loadDexFile</span>(<span class="hljs-string">``</span>file<span class="hljs-string">``</span>, optimizedDirectory, loader, elements);  <span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">`    `</span>     <span class="hljs-string">``</span>&#125;<br>loadDexFile<br><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-title class_">DexFile</span> <span class="hljs-title function_">loadDexFile</span>(<span class="hljs-string">``</span><span class="hljs-title class_">File</span><span class="hljs-string">` `</span>file<span class="hljs-string">``</span>, <span class="hljs-string">``</span><span class="hljs-title class_">File</span><span class="hljs-string">` `</span>optimizedDirectory, <span class="hljs-title class_">ClassLoader</span> loader,<span class="hljs-string">``</span>                    <span class="hljs-string">``</span><span class="hljs-title class_">Element</span>[] elements)<span class="hljs-string">``</span>      <span class="hljs-string">``</span>throws <span class="hljs-title class_">IOException</span> &#123;<span class="hljs-string">``</span>    <span class="hljs-string">``</span><span class="hljs-keyword">if</span><span class="hljs-string">` `</span>(optimizedDirectory <span class="hljs-string">``</span>=<span class="hljs-string">``</span>=<span class="hljs-string">` `</span><span class="hljs-literal">null</span>) &#123;<span class="hljs-string">``</span>      <span class="hljs-string">``</span><span class="hljs-keyword">return</span><span class="hljs-string">` `</span><span class="hljs-keyword">new</span> <span class="hljs-title class_">DexFile</span>(<span class="hljs-string">``</span>file<span class="hljs-string">``</span>, loader, elements);<span class="hljs-string">``</span>    <span class="hljs-string">``</span>&#125; <span class="hljs-string">``</span><span class="hljs-keyword">else</span><span class="hljs-string">` `</span>&#123;<span class="hljs-string">``</span>      <span class="hljs-string">``</span><span class="hljs-title class_">String</span> optimizedPath <span class="hljs-string">``</span>=<span class="hljs-string">` `</span><span class="hljs-title function_">optimizedPathFor</span>(<span class="hljs-string">``</span>file<span class="hljs-string">``</span>, optimizedDirectory);<span class="hljs-string">``</span>      <span class="hljs-string">``</span><span class="hljs-keyword">return</span><span class="hljs-string">` `</span><span class="hljs-title class_">DexFile</span>.<span class="hljs-title function_">loadDex</span>(<span class="hljs-string">``</span>file<span class="hljs-string">``</span>.<span class="hljs-title function_">getPath</span>(), optimizedPath, <span class="hljs-string">``</span><span class="hljs-number">0</span><span class="hljs-string">``</span>, loader, elements);<span class="hljs-string">``</span>    <span class="hljs-string">``</span>&#125;<span class="hljs-string">``</span>  <span class="hljs-string">``</span>&#125;<br>loadDex<br><span class="hljs-keyword">static</span> <span class="hljs-title class_">DexFile</span> <span class="hljs-title function_">loadDex</span>(<span class="hljs-title class_">String</span> sourcePathName, <span class="hljs-title class_">String</span> outputPathName,<span class="hljs-string">``</span>   <span class="hljs-string">``</span>int<span class="hljs-string">` `</span>flags, <span class="hljs-title class_">ClassLoader</span> loader, <span class="hljs-title class_">DexPathList</span>.<span class="hljs-property">Element</span>[] elements) throws <span class="hljs-title class_">IOException</span> &#123;<span class="hljs-string">``</span>   <span class="hljs-string">``</span><span class="hljs-keyword">return</span><span class="hljs-string">` `</span><span class="hljs-keyword">new</span> <span class="hljs-title class_">DexFile</span>(sourcePathName, outputPathName, flags, loader, elements);<span class="hljs-string">``</span> <span class="hljs-string">``</span>&#125;<br><span class="hljs-title class_">DexFile</span><br>/<span class="hljs-string">``</span>libcore<span class="hljs-string">``</span>/<span class="hljs-string">``</span>dalvik<span class="hljs-string">``</span>/<span class="hljs-string">``</span>src<span class="hljs-string">``</span>/<span class="hljs-string">``</span>main<span class="hljs-string">``</span>/<span class="hljs-string">``</span>java<span class="hljs-string">``</span>/<span class="hljs-string">``</span>dalvik<span class="hljs-string">``</span>/<span class="hljs-string">``</span>system<span class="hljs-string">``</span>/<span class="hljs-string">``</span><span class="hljs-title class_">DexFile</span>.<span class="hljs-property">java</span><span class="hljs-string">``</span><span class="hljs-title class_">DexFile</span>(<span class="hljs-title class_">String</span> fileName, <span class="hljs-title class_">ClassLoader</span> loader, <span class="hljs-title class_">DexPathList</span>.<span class="hljs-property">Element</span>[] elements) throws <span class="hljs-title class_">IOException</span> &#123;<span class="hljs-string">``</span>    <span class="hljs-string">``</span>mCookie <span class="hljs-string">``</span>=<span class="hljs-string">` `</span><span class="hljs-title function_">openDexFile</span>(fileName, <span class="hljs-literal">null</span>, <span class="hljs-string">``</span><span class="hljs-number">0</span><span class="hljs-string">``</span>, loader, elements);<span class="hljs-string">``</span>    <span class="hljs-string">``</span>mInternalCookie <span class="hljs-string">``</span>=<span class="hljs-string">` `</span>mCookie;<span class="hljs-string">``</span>    <span class="hljs-string">``</span>mFileName <span class="hljs-string">``</span>=<span class="hljs-string">` `</span>fileName;<span class="hljs-string">``</span>    <span class="hljs-string">``</span>/<span class="hljs-string">``</span>/<span class="hljs-string">``</span><span class="hljs-title class_">System</span>.<span class="hljs-property">out</span>.<span class="hljs-title function_">println</span>(<span class="hljs-string">``</span><span class="hljs-string">&quot;DEX FILE cookie is &quot;</span><span class="hljs-string">` `</span>+<span class="hljs-string">` `</span>mCookie <span class="hljs-string">``</span>+<span class="hljs-string">` `</span><span class="hljs-string">&quot; fileName=&quot;</span><span class="hljs-string">` `</span>+<span class="hljs-string">` `</span>fileName);<span class="hljs-string">``</span>  <span class="hljs-string">``</span>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里出现的mCookie，mCookie在C&#x2F;C++层中是DexFile的指针，我们在下面详细讲解</p>
+<figure class="highlight qml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs qml">openDexFile<br>private static <span class="hljs-string">``</span><span class="hljs-built_in">Object</span><span class="hljs-string">` `</span>openDexFile(<span class="hljs-built_in">String</span> sourceName, <span class="hljs-built_in">String</span> outputName, <span class="hljs-string">``</span><span class="hljs-built_in">int</span><span class="hljs-string">` `</span>flags,<span class="hljs-string">``</span>    <span class="hljs-string">``</span>ClassLoader loader, DexPathList.Element[] elements) throws <span class="hljs-title">IOException</span> &#123;<span class="hljs-string">``</span>    <span class="hljs-string">``</span>/<span class="hljs-string">``</span>/<span class="hljs-string">` `</span>Use absolute paths to enable the use <span class="hljs-keyword">of</span> relative paths when testing <span class="hljs-keyword">on</span> host.<span class="hljs-string">``</span>    <span class="hljs-string">``</span><span class="hljs-keyword">return</span><span class="hljs-string">` `</span>openDexFileNative(<span class="hljs-keyword">new</span> <span class="hljs-string">``</span>File<span class="hljs-string">``</span>(sourceName).getAbsolutePath(),<span class="hljs-string">``</span>                 <span class="hljs-string">``</span>(outputName <span class="hljs-string">``</span>=<span class="hljs-string">``</span>=<span class="hljs-string">` `</span><span class="hljs-literal">null</span>)<span class="hljs-string">``</span>                  <span class="hljs-string">``</span>? <span class="hljs-literal">null</span><span class="hljs-string">``</span>                  <span class="hljs-string">``</span>: <span class="hljs-keyword">new</span> <span class="hljs-string">``</span>File<span class="hljs-string">``</span>(outputName).getAbsolutePath(),<span class="hljs-string">``</span>                   <span class="hljs-string">``</span>flags,<span class="hljs-string">``</span>                  <span class="hljs-string">``</span>loader,<span class="hljs-string">``</span>                  <span class="hljs-string">``</span>elements);<span class="hljs-string">``</span>  <span class="hljs-string">``</span>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>显示详细信息</p>
+<p>这里就进入了C&#x2F;C++层</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">openDexFileNative</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_G7H6JPREYMZ8XN4.png" srcset="/img/loading.gif" lazyload alt="image-20220613134340460"></p>
+<p>为了节约篇幅，我们快速分析，中间再经过一些函数</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-built_in">OpenDexFilesFromOat</span>()``<span class="hljs-built_in">MakeUpToDate</span>()``<span class="hljs-built_in">GenerateOatFileNoChecks</span>()``<span class="hljs-built_in">Dex2Oat</span>()<br></code></pre></td></tr></table></figure>
+
+<p>最后进进入了Dex2Oat，这就进入了Dex2Oat的编译流程</p>
+<p>反之如果我们在下面Dex2Oat的流程中通过Hook相关方法或execv或execve导致dex2oat失败，我们就会返回到<code>OpenDexFilesFromOat</code></p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">OpenDexFilesFromOat</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_9ZEY5KR5Q6ESSF7.png" srcset="/img/loading.gif" lazyload alt="image-20220613145156590"></p>
+<p>会先在<code>HasOriginalDexFiles</code>里尝试加载我们的Dex，也就是说，倘若我们的壳阻断了dex2oat的编译流程，然后又调用了DexFile的Open函数。</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs arduino">DexFile::Open<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_7H83UJ6WPGBQWZJ.png" srcset="/img/loading.gif" lazyload alt="image-20220613145606897"></p>
+<p>校验dex的魔术字字段，然后调用<code>DexFile::OpenFile</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs go">DexFile::OpenFile<br>/<span class="hljs-string">``</span>art<span class="hljs-string">``</span>/<span class="hljs-string">``</span>runtime<span class="hljs-string">``</span>/<span class="hljs-string">``</span>dex_file.cc<span class="hljs-string">``</span>std::unique_ptr&lt;<span class="hljs-keyword">const</span> DexFile&gt; DexFile::OpenFile(<span class="hljs-string">``</span><span class="hljs-type">int</span><span class="hljs-string">` `</span>fd,<span class="hljs-string">``</span>                        <span class="hljs-string">``</span><span class="hljs-keyword">const</span> std::<span class="hljs-type">string</span>&amp; location,<span class="hljs-string">``</span>                        <span class="hljs-string">``</span><span class="hljs-type">bool</span><span class="hljs-string">` `</span>verify,<span class="hljs-string">``</span>                        <span class="hljs-string">``</span><span class="hljs-type">bool</span><span class="hljs-string">` `</span>verify_checksum,<span class="hljs-string">``</span>                        <span class="hljs-string">``</span>std::<span class="hljs-type">string</span><span class="hljs-string">``</span>*<span class="hljs-string">` `</span>error_msg) &#123;<span class="hljs-string">``</span> <span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span> <span class="hljs-string">``</span>std::unique_ptr&lt;DexFile&gt; dex_file <span class="hljs-string">``</span>=<span class="hljs-string">` `</span>OpenCommon(<span class="hljs-string">``</span><span class="hljs-keyword">map</span><span class="hljs-string">``</span>-<span class="hljs-string">``</span>&gt;Begin(),<span class="hljs-string">``</span>                        <span class="hljs-string">``</span><span class="hljs-keyword">map</span><span class="hljs-string">``</span>-<span class="hljs-string">``</span>&gt;Size(),<span class="hljs-string">``</span>                        <span class="hljs-string">``</span>location,<span class="hljs-string">``</span>                        <span class="hljs-string">``</span>dex_header<span class="hljs-string">``</span>-<span class="hljs-string">``</span>&gt;checksum_,<span class="hljs-string">``</span>                        <span class="hljs-string">``</span>kNoOatDexFile,<span class="hljs-string">``</span>                        <span class="hljs-string">``</span>verify,<span class="hljs-string">``</span>                        <span class="hljs-string">``</span>verify_checksum,<span class="hljs-string">``</span>                        <span class="hljs-string">``</span>error_msg); <span class="hljs-string">``</span> <span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">` `</span>                        <span class="hljs-string">``</span>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>显示详细信息</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">OpenCommon</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_E2VAW4SHZENYAGQ.png" srcset="/img/loading.gif" lazyload alt="image-20220613145950224"></p>
+<p>最后又再次回到<code>DexFile</code>类，这里我们的dex文件加载基本流程分析完毕</p>
+<h3 id="2-Dex2Oat编译流程"><a href="#2-Dex2Oat编译流程" class="headerlink" title="2.Dex2Oat编译流程"></a>2.Dex2Oat编译流程</h3><p>Dex2oat是google公司为了提高编译效率的一种机制，从Android8.0开始实施，一些加壳厂商实现抽取壳往往会禁用Dex2oat，而针对整体加壳没有禁用的Dex2Oat也成为了脱壳点</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_ZKW5FV6YD4JW9JF.png" srcset="/img/loading.gif" lazyload alt="image-20220613134904994"></p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs ruby"><span class="hljs-title class_">Exec</span><br>/<span class="hljs-string">``</span>art<span class="hljs-string">``</span>/<span class="hljs-string">``</span>runtime<span class="hljs-string">``</span>/<span class="hljs-string">``</span>exec_utils.cc<span class="hljs-string">``</span>bool<span class="hljs-string">` `</span><span class="hljs-title class_">Exec</span>(std::vector&lt;std::string&gt;&amp; arg_vector, std::string<span class="hljs-string">``</span>*<span class="hljs-string">` `</span>error_msg) &#123;<span class="hljs-string">``</span> <span class="hljs-string">``</span>int<span class="hljs-string">` `</span>status <span class="hljs-string">``</span>=<span class="hljs-string">` `</span><span class="hljs-title class_">ExecAndReturnCode</span>(arg_vector, error_msg);<span class="hljs-string">``</span> <span class="hljs-string">``</span><span class="hljs-keyword">if</span><span class="hljs-string">` `</span>(status !<span class="hljs-string">``</span>=<span class="hljs-string">` `</span><span class="hljs-number">0</span><span class="hljs-string">``</span>) &#123;<span class="hljs-string">``</span>  <span class="hljs-string">``</span>const std::string command_line(android::base::<span class="hljs-title class_">Join</span>(arg_vector, <span class="hljs-string">``</span><span class="hljs-string">&#x27; &#x27;</span><span class="hljs-string">``</span>));<span class="hljs-string">``</span>  <span class="hljs-string">``</span>*<span class="hljs-string">``</span>error_msg <span class="hljs-string">``</span>=<span class="hljs-string">` `</span><span class="hljs-title class_">StringPrintf</span>(<span class="hljs-string">``</span><span class="hljs-string">&quot;Failed execv(%s) because non-0 exit status&quot;</span><span class="hljs-string">``</span>,<span class="hljs-string">``</span>               <span class="hljs-string">``</span>command_line.c_str());<span class="hljs-string">``</span>  <span class="hljs-string">``</span><span class="hljs-keyword">return</span><span class="hljs-string">` `</span><span class="hljs-literal">false</span>;<span class="hljs-string">``</span> <span class="hljs-string">``</span>&#125;<span class="hljs-string">``</span> <span class="hljs-string">``</span><span class="hljs-keyword">return</span><span class="hljs-string">` `</span><span class="hljs-literal">true</span>;<span class="hljs-string">``</span>&#125;<br><span class="hljs-title class_">ExecAndReturnCode</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_A77NRB57ZAFQU8A.png" srcset="/img/loading.gif" lazyload alt="image-20220613143206138"></p>
+<p>而我们就可以通过Hook execv或execve来禁用Dex2Oat，而如果我们不禁用dex2oat，<em>execve函数</em>是用来调用<code>dex2oat</code>的二进制程序实现对dex文件的加载，我们这时候找到<code>dex2oat.cc</code>这个文件，找到main函数</p>
+<figure class="highlight d"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs d">/<span class="hljs-string">``</span>art<span class="hljs-string">``</span>/<span class="hljs-string">``d</span>ex2oat<span class="hljs-string">``</span>/<span class="hljs-string">``d</span>ex2oat.cc<span class="hljs-string">``</span> <span class="hljs-string">``</span><span class="hljs-keyword">int</span><span class="hljs-string">` `</span>main(<span class="hljs-string">``</span><span class="hljs-keyword">int</span><span class="hljs-string">` `</span>argc, <span class="hljs-built_in">char</span><span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">` `</span>argv) &#123;<span class="hljs-string">``</span> <span class="hljs-string">``</span><span class="hljs-keyword">int</span><span class="hljs-string">` `</span>result <span class="hljs-string">``</span>=<span class="hljs-string">` `</span>static_cast&lt;<span class="hljs-string">``</span><span class="hljs-keyword">int</span><span class="hljs-string">``</span>&gt;(art::Dex2oat(argc, argv));<span class="hljs-string">``</span> <span class="hljs-string">``</span><span class="hljs-keyword">if</span><span class="hljs-string">` `</span>(!art::kIsDebugBuild &amp;&amp; (RUNNING_ON_MEMORY_TOOL <span class="hljs-string">``</span>=<span class="hljs-string">``</span>=<span class="hljs-string">` `</span><span class="hljs-number">0</span><span class="hljs-string">``</span>)) &#123;<span class="hljs-string">``</span>  <span class="hljs-string">``</span>_exit(result);<span class="hljs-string">``</span> <span class="hljs-string">``</span>&#125;<span class="hljs-string">``</span> <span class="hljs-string">``</span><span class="hljs-keyword">return</span><span class="hljs-string">` `</span>result;<br></code></pre></td></tr></table></figure>
+
+<p>这里我们调用了Dex2oat</p>
+<figure class="highlight d"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs d">Dex2Oat<br>/<span class="hljs-string">``</span>art<span class="hljs-string">``</span>/<span class="hljs-string">``d</span>ex2oat<span class="hljs-string">``</span>/<span class="hljs-string">``d</span>ex2oat.cc<span class="hljs-string">``</span><span class="hljs-keyword">static</span> dex2oat::ReturnCode Dex2oat(<span class="hljs-string">``</span><span class="hljs-keyword">int</span><span class="hljs-string">` `</span>argc, <span class="hljs-built_in">char</span><span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">` `</span>argv) &#123;<span class="hljs-string">``</span>  <span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>  <span class="hljs-string">``d</span>ex2oat::ReturnCode setup_code <span class="hljs-string">``</span>=<span class="hljs-string">` `d</span>ex2oat<span class="hljs-string">``</span>-<span class="hljs-string">``</span>&gt;Setup();<span class="hljs-string">``</span>  <span class="hljs-string">``d</span>ex2oat::ReturnCode result;<span class="hljs-string">``</span> <span class="hljs-string">``</span><span class="hljs-keyword">if</span><span class="hljs-string">` `</span>(dex2oat<span class="hljs-string">``</span>-<span class="hljs-string">``</span>&gt;IsImage()) &#123;<span class="hljs-string">``</span>  <span class="hljs-string">``</span>result <span class="hljs-string">``</span>=<span class="hljs-string">` `</span>CompileImage(<span class="hljs-string">``</span>*<span class="hljs-string">``d</span>ex2oat);<span class="hljs-string">``</span> <span class="hljs-string">``</span>&#125; <span class="hljs-string">``</span><span class="hljs-keyword">else</span><span class="hljs-string">` `</span>&#123;<span class="hljs-string">``</span>  <span class="hljs-string">``</span>result <span class="hljs-string">``</span>=<span class="hljs-string">` `</span>CompileApp(<span class="hljs-string">``</span>*<span class="hljs-string">``d</span>ex2oat);<span class="hljs-string">``</span> <span class="hljs-string">``</span>&#125;<span class="hljs-string">``</span>  <span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>显示详细信息</p>
+<p>Dex2oat中会对dex文件进行逐个类逐个函数的编译，setup()函数完成对dex的加载</p>
+<p>然后顺序执行，就会进入<code>CompileApp</code></p>
+<p>编译过程中会按照逐个函数进行编译，就会进入<code>CompileMethod</code></p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_4H5QGXPPAQ9H6MM.png" srcset="/img/loading.gif" lazyload alt="image-20220613151229524"></p>
+<p>到这里Dex2oat的基本流程就分析完毕</p>
+<h3 id="3-类加载流程"><a href="#3-类加载流程" class="headerlink" title="3.类加载流程"></a>3.类加载流程</h3><p>要理解DexFile为什么如此重要，首先我们要清除Android APP的类加载流程。Android的类加载一般分为两类<code>隐式加载</code>和<code>显式加载</code></p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs arcade"><span class="hljs-number">1.</span><span class="hljs-string">``</span>隐式加载:<span class="hljs-string">``</span>  <span class="hljs-string">``</span>(<span class="hljs-string">``</span><span class="hljs-number">1</span><span class="hljs-string">``</span>)创建类的实例,也就是<span class="hljs-keyword">new</span>一个对象<span class="hljs-string">``</span>  <span class="hljs-string">``</span>(<span class="hljs-string">``</span><span class="hljs-number">2</span><span class="hljs-string">``</span>)访问某个类或接口的静态变量,或者对该静态变量赋值<span class="hljs-string">``</span>  <span class="hljs-string">``</span>(<span class="hljs-string">``</span><span class="hljs-number">3</span><span class="hljs-string">``</span>)调用类的静态方法<span class="hljs-string">``</span>  <span class="hljs-string">``</span>(<span class="hljs-string">``</span><span class="hljs-number">4</span><span class="hljs-string">``</span>)反射Class.forName(<span class="hljs-string">``</span><span class="hljs-string">&quot;android.app.ActivityThread&quot;</span><span class="hljs-string">``</span>)<span class="hljs-string">``</span>  <span class="hljs-string">``</span>(<span class="hljs-string">``</span><span class="hljs-number">5</span><span class="hljs-string">``</span>)初始化一个类的子类(会首先初始化子类的父类)<span class="hljs-string">``</span><span class="hljs-number">2.</span><span class="hljs-string">``</span>显示加载：<span class="hljs-string">``</span>  <span class="hljs-string">``</span>(<span class="hljs-string">``</span><span class="hljs-number">1</span><span class="hljs-string">``</span>)使用LoadClass()加载<span class="hljs-string">``</span>  <span class="hljs-string">``</span>(<span class="hljs-string">``</span><span class="hljs-number">2</span><span class="hljs-string">``</span>)使用forName()加载<br></code></pre></td></tr></table></figure>
+
+<p>我们详细看一下显示加载：</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs arcade">Class.forName 和 ClassLoader.loadClass加载有何不同：<span class="hljs-string">``</span>（<span class="hljs-string">``</span><span class="hljs-number">1</span><span class="hljs-string">``</span>）ClassLoader.loadClass也能加载一个类,但是不会触发类的初始化(也就是说不会对类的静态变量,静态代码块进行初始化操作)<span class="hljs-string">``</span>（<span class="hljs-string">``</span><span class="hljs-number">2</span><span class="hljs-string">``</span>）Class.forName这种方式,不但会加载一个类,还会触发类的初始化阶段,也能够为这个类的静态变量,静态代码块进行初始化操作<br></code></pre></td></tr></table></figure>
+
+<p>我们在详细来看一下在类加载过程中的流程：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">java层<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_BTCHHBZVJNJQJWV.png" srcset="/img/loading.gif" lazyload alt="image-20220612215745595"></p>
+<p>我们可以发现类加载中关键的DexFile，该类用来描述Dex文件，所以我们的脱壳对象就是<code>DexFile</code></p>
+<p>这里从DexFile进入Native层中，还有一个关键的字段就是<code>mCookie</code></p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_MVB7WZJNEG6MBGK.png" srcset="/img/loading.gif" lazyload alt="image-20220613102141423"></p>
+<p>后面我们详细的介绍<code>mCookie</code>的作用</p>
+<p>我们进一步分析，进入Native层</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs gradle"><span class="hljs-keyword">Native</span>层<br></code></pre></td></tr></table></figure>
+
+<p>&#x2F;art&#x2F;runtime&#x2F;native&#x2F;[dalvik_system_DexFile.cc</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_5Z5RGDXNJ5ZW7NE.png" srcset="/img/loading.gif" lazyload alt="image-20220613124716608"></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">ConvertJavaArrayToDexFiles对cookie进行了处理<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_S4UPYX5XB7NCVPY.png" srcset="/img/loading.gif" lazyload alt="image-20220613125016884"></p>
+<p>通过这里的分析，我们可以知道mCooike转换为C&#x2F;C++层指针后，就是dexfile的索引</p>
+<p>我们继续分析<code>DefineClass</code></p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs lasso">art<span class="hljs-string">``</span>/<span class="hljs-string">``</span>runtime<span class="hljs-string">``</span>/<span class="hljs-string">``</span>class_linker.cc<span class="hljs-string">``</span>mirror<span class="hljs-type">::Class</span><span class="hljs-string">``</span>*<span class="hljs-string">` `</span>ClassLinker<span class="hljs-type">::DefineClass</span>(<span class="hljs-keyword">Thread</span><span class="hljs-string">``</span>*<span class="hljs-string">` `</span><span class="hljs-built_in">self</span><span class="hljs-string">``</span>,<span class="hljs-string">``</span>                   <span class="hljs-string">``</span>const char<span class="hljs-string">``</span>*<span class="hljs-string">` `</span>descriptor,<span class="hljs-string">``</span>                    <span class="hljs-string">``</span>size_t <span class="hljs-string">``</span>hash<span class="hljs-string">``</span>,<span class="hljs-string">``</span>                    <span class="hljs-string">``</span><span class="hljs-keyword">Handle</span>&lt;mirror<span class="hljs-type">::ClassLoader</span>&gt; class_loader,<span class="hljs-string">``</span>                    <span class="hljs-string">``</span>const DexFile&amp; dex_file,<span class="hljs-string">``</span>                    <span class="hljs-string">``</span>const DexFile<span class="hljs-type">::ClassDef</span>&amp; dex_class_def) &#123;<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>LoadClass(<span class="hljs-string">``</span><span class="hljs-built_in">self</span><span class="hljs-string">``</span>, <span class="hljs-string">``</span>*<span class="hljs-string">``</span>new_dex_file, <span class="hljs-string">``</span>*<span class="hljs-string">``</span>new_class_def, klass);<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>显示详细信息</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs lasso">LoadClass<br>art<span class="hljs-string">``</span>/<span class="hljs-string">``</span>runtime<span class="hljs-string">``</span>/<span class="hljs-string">``</span>class_linker.cc<span class="hljs-string">``</span><span class="hljs-literal">void</span> ClassLinker<span class="hljs-type">::LoadClass</span>(<span class="hljs-keyword">Thread</span><span class="hljs-string">``</span>*<span class="hljs-string">` `</span><span class="hljs-built_in">self</span><span class="hljs-string">``</span>,<span class="hljs-string">``</span><span class="hljs-number">3120</span><span class="hljs-string">`              `</span>const DexFile&amp; dex_file,<span class="hljs-string">``</span><span class="hljs-number">3121</span><span class="hljs-string">`              `</span>const DexFile<span class="hljs-type">::ClassDef</span>&amp; dex_class_def,<span class="hljs-string">``</span><span class="hljs-number">3122</span><span class="hljs-string">`              `</span><span class="hljs-keyword">Handle</span>&lt;mirror<span class="hljs-type">::Class</span>&gt; klass) &#123;<span class="hljs-string">``</span><span class="hljs-number">3123</span><span class="hljs-string">` `</span>const uint8_t<span class="hljs-string">``</span>*<span class="hljs-string">` `</span>class_data <span class="hljs-string">``</span>=<span class="hljs-string">` `</span>dex_file.GetClassData(dex_class_def);<span class="hljs-string">``</span><span class="hljs-number">3124</span><span class="hljs-string">` `</span><span class="hljs-keyword">if</span><span class="hljs-string">` `</span>(class_data <span class="hljs-string">``</span>=<span class="hljs-string">``</span>=<span class="hljs-string">` `</span>nullptr) &#123;<span class="hljs-string">``</span><span class="hljs-number">3125</span><span class="hljs-string">`  `</span><span class="hljs-keyword">return</span><span class="hljs-string">``</span>; <span class="hljs-string">``</span>/<span class="hljs-string">``</span>/<span class="hljs-string">` `</span>no fields <span class="hljs-string">``</span><span class="hljs-literal">or</span><span class="hljs-string">` `</span>methods <span class="hljs-string">``</span>-<span class="hljs-string">` `</span>for<span class="hljs-string">` `</span>example a marker interface<span class="hljs-string">``</span><span class="hljs-number">3126</span><span class="hljs-string">` `</span>&#125;<span class="hljs-string">``</span><span class="hljs-number">3127</span><span class="hljs-string">` `</span>LoadClassMembers(<span class="hljs-string">``</span><span class="hljs-built_in">self</span><span class="hljs-string">``</span>, dex_file, class_data, klass);<span class="hljs-string">``</span><span class="hljs-number">3128</span><span class="hljs-string">``</span>&#125;<br>LoadClassMembers<br>art<span class="hljs-string">``</span>/<span class="hljs-string">``</span>runtime<span class="hljs-string">``</span>/<span class="hljs-string">``</span>class_linker.cc<span class="hljs-string">``</span><span class="hljs-literal">void</span> ClassLinker<span class="hljs-type">::LoadClassMembers</span>(<span class="hljs-keyword">Thread</span><span class="hljs-string">``</span>*<span class="hljs-string">` `</span><span class="hljs-built_in">self</span><span class="hljs-string">``</span>,<span class="hljs-string">``</span>                  <span class="hljs-string">``</span>const DexFile&amp; dex_file,<span class="hljs-string">``</span>                  <span class="hljs-string">``</span>const uint8_t<span class="hljs-string">``</span>*<span class="hljs-string">` `</span>class_data,<span class="hljs-string">``</span>                  <span class="hljs-string">``</span><span class="hljs-keyword">Handle</span>&lt;mirror<span class="hljs-type">::Class</span>&gt; klass) &#123;<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>   <span class="hljs-string">``</span>LoadMethod(dex_file, it, klass, method);<span class="hljs-string">``</span>   <span class="hljs-string">``</span>LinkCode(this, method, oat_class_ptr, class_def_method_index);<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>&#125;<br>LoadMethod<br>art<span class="hljs-string">``</span>/<span class="hljs-string">``</span>runtime<span class="hljs-string">``</span>/<span class="hljs-string">``</span>class_linker.cc<span class="hljs-string">``</span><span class="hljs-literal">void</span> ClassLinker<span class="hljs-type">::LoadMethod</span>(const DexFile&amp; dex_file,<span class="hljs-string">``</span>              <span class="hljs-string">``</span>const ClassDataItemIterator&amp; it,<span class="hljs-string">``</span>              <span class="hljs-string">``</span><span class="hljs-keyword">Handle</span>&lt;mirror<span class="hljs-type">::Class</span>&gt; klass,<span class="hljs-string">``</span>               <span class="hljs-string">``</span>ArtMethod<span class="hljs-string">``</span>*<span class="hljs-string">` `</span>dst) &#123;<span class="hljs-string">``</span>&#125;<br>LinkCode<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_78UN4BZERGB3BGG.png" srcset="/img/loading.gif" lazyload alt="image-20220613130149629"></p>
+<p>我们可以发现这里就进入了从linkcode后就进入了解释器中，并对是否进行dex2oat进行了判断，我们直接进入解释器中继续分析</p>
+<p>我们知道Art解释器分为两种：<code>解释模式下</code>和<code>quick模式下</code>，而我们又知道Android8.0开始进行dex2oat</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs arcade">如果壳没有禁用dex2oat，那类中的初始化函数运行在解释器模式下<span class="hljs-string">``</span>如果壳禁用dex2oat，dex文件中的所有函数都运行在解释器模式下<span class="hljs-string">``</span>则类的初始化函数运行在解释器模式下<br></code></pre></td></tr></table></figure>
+
+<p>所以一般的加壳厂商会禁用掉dex2oat，这样可以是所有的函数都运行在解释模式下，所以一些脱壳点选在dex2oat流程中，可能针对禁用dex2oat的情况并不使用，我们这里主要针对整体加壳，就不展开讲述，最后我们得知解释器中会运行在<code>Execute</code>下</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs ruby"><span class="hljs-title class_">Execute</span><br>art<span class="hljs-string">``</span>/<span class="hljs-string">``</span>runtime<span class="hljs-string">``</span>/<span class="hljs-string">``</span>interpreter<span class="hljs-string">``</span>/<span class="hljs-string">``</span>interpreter.cc<span class="hljs-string">``</span>static inline <span class="hljs-title class_">JValue</span> <span class="hljs-title class_">Execute</span>(<span class="hljs-string">``</span>  <span class="hljs-string">``</span><span class="hljs-title class_">Thread</span><span class="hljs-string">``</span>*<span class="hljs-string">` `</span><span class="hljs-variable language_">self</span><span class="hljs-string">``</span>,<span class="hljs-string">``</span>  <span class="hljs-string">``</span>const <span class="hljs-title class_">DexFile</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:CodeItem<span class="hljs-string">``</span>*<span class="hljs-string">` `</span>code_item</span>,<span class="hljs-string">``</span>  <span class="hljs-string">``</span><span class="hljs-title class_">ShadowFrame</span>&amp; shadow_frame,<span class="hljs-string">``</span>  <span class="hljs-string">``</span><span class="hljs-title class_">JValue</span> result_register,<span class="hljs-string">``</span>  <span class="hljs-string">``</span>bool<span class="hljs-string">` `</span>stay_in_interpreter <span class="hljs-string">``</span>=<span class="hljs-string">` `</span><span class="hljs-literal">false</span>) <span class="hljs-variable constant_">REQUIRES_SHARED</span>(<span class="hljs-title class_">Locks</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:mutator_lock_</span>)&#123;<span class="hljs-string">` `</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>   <span class="hljs-string">``</span><span class="hljs-title class_">ArtMethod</span> <span class="hljs-string">``</span>*<span class="hljs-string">``</span>method <span class="hljs-string">``</span>=<span class="hljs-string">` `</span>shadow_frame.<span class="hljs-title class_">GetMethod</span>();<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">``</span>*<span class="hljs-string">` `</span>  <span class="hljs-string">``</span>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>显示详细信息</p>
+<p>这里我们大致分析完成了类加载的思路</p>
+<h3 id="4-DexFile详解"><a href="#4-DexFile详解" class="headerlink" title="4.DexFile详解"></a>4.DexFile详解</h3><p>前面我们分析了很多，对dex加载、类加载等都已经有了一个很详细的了解，而最终一切的核心就是DexFile，DexFile就是我们脱壳所关注的重点，寒冰大佬在<a target="_blank" rel="noopener" href="https://bbs.pediy.com/thread-254555.htm#msg_header_h2_2">拨云见日：安卓APP脱壳的本质以及如何快速发现ART下的脱壳点</a>中提到，在ART下只要获得了DexFile对象，那么我们就可以得到该dex文件在内存中的起始地址和大小，进而完成脱壳。</p>
+<p>我们先查看一些DexFile的结构体</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_Q83V8D5NNXZZHPZ.png" srcset="/img/loading.gif" lazyload alt="image-20220613152305983"></p>
+<p>只要我们能获得起始地址begin和大小size，就可以成功的将dex文件脱取下来，这里我们记得DexFile含有虚函数表，所以根据C++布局，要偏移一个指针</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_KSHAXGKHDX5SJJ8.png" srcset="/img/loading.gif" lazyload alt="image-20220613152517629"></p>
+<p>而DexFile类还给我们提供了方便的API</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_7728E3KQDVSZ8K8.png" srcset="/img/loading.gif" lazyload alt="image-20220613152724888"></p>
+<p>这样只要我们找到函数中有DexFile对象，就可以通过调用API来进一步dump dex文件，由此按照寒冰大佬的思想，大量的脱壳点由此产生</p>
+<h4 id="（1）直接查找法"><a href="#（1）直接查找法" class="headerlink" title="（1）直接查找法"></a>（1）直接查找法</h4><p>我们通过直接在Android源码中搜索DexFile，就可以获得海量的脱壳点</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_M9VA8K6SUMFSAYV.png" srcset="/img/loading.gif" lazyload alt="image-20220613153036103"></p>
+<p>我们通过在IDA中搜索libart.so导出的DexFile，同样可以获得大量的脱壳点</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_2NU2A86H5SS2EPH.png" srcset="/img/loading.gif" lazyload alt="image-20220613153220786"></p>
+<h4 id="（2）间接查找法"><a href="#（2）间接查找法" class="headerlink" title="（2）间接查找法"></a>（2）间接查找法</h4><p>这里就是寒冰大佬在文章中提到的通过ArtMethod对象的getDexFile()获取到ArtMethod所属的DexFile对象的这种一级间接法，通过Thread的getCurrentMethod()函数首先获取到ArtMethod或者通过ShadowFrame的getMethod获取到ArtMethod对象，然后再通过getDexFile获取到ArtMethod对象所属的DexFile的二级间接法。</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-built_in">getDexFile</span>()``<span class="hljs-built_in">getMethod</span>()<br></code></pre></td></tr></table></figure>
+
+<h3 id="5-ArtMethod详解"><a href="#5-ArtMethod详解" class="headerlink" title="5.ArtMethod详解"></a>5.ArtMethod详解</h3><p>上面我们已经详细分析了DexFile的文件结构，我们知道通过ArtMethod可以获得DexFile，那么为啥又要单独提ArtMethod呢，因为ArtMethod在抽取壳和VMP等壳中扮演了重要的角色</p>
+<p>ArtMethod结构体</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_G5C7AYX3PW2J2ZC.png" srcset="/img/loading.gif" lazyload alt="image-20220613154044296"></p>
+<p>我们通过ArtMethod可以获得codeitem的偏移和方法索引，熟悉dex结构的朋友知道codeitem就是代码实际的值，而codeitem则再后续加壳技术扮演了至关重要的地址，而且ArtMethod还有非常丰富的方法，可以帮助大家实现很多功能，所以在脱壳工作中也是十分重要的</p>
+<h2 id="五、脱壳技术归纳"><a href="#五、脱壳技术归纳" class="headerlink" title="五、脱壳技术归纳"></a>五、脱壳技术归纳</h2><p>前面分析了很多，最后无非整体加壳的脱壳方案落脚在DexFile的关键对象上，由此产生了一些常用的方法</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_SUNU9THMUQ39Q2K.png" srcset="/img/loading.gif" lazyload alt="image-20220613154906679"></p>
+<h3 id="1-现有工具脱壳法"><a href="#1-现有工具脱壳法" class="headerlink" title="1.现有工具脱壳法"></a>1.现有工具脱壳法</h3><p>工欲善其事必先利其器，整体加壳已经很多年，不少的大佬们都开发了很多非常好用的工具，我们在自己掌握原理过程时，平时工作中也可以使用很多大佬的开发工具，这里随便举几个自己经常用的工具，这里我对各个大佬的脱壳工具进行了一个梳理</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_P5QAN72MQ58SMKG.png" srcset="/img/loading.gif" lazyload alt="image-20220613154906679"></p>
+<h4 id="（1）FRIDA-DEXDump"><a href="#（1）FRIDA-DEXDump" class="headerlink" title="（1）FRIDA-DEXDump"></a>（1）FRIDA-DEXDump</h4><p>这是葫芦娃大佬开发的针对整体加壳的工具，主要通过frida技术，文章参考：<a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/221905">深入 FRIDA-DEXDump 中的矛与盾</a>，该工具的特点是一般的hook方案通过直接搜索DEX的头文件dex.035来定位dex的起始地址，但是后来不少公司对头文件的魔术字段进行了抹除，这样针对没有文件头的 <code>DEX</code> 文件，该工具通过map_off 找到 DEX 的 map_list， 通过解析它，并得到类型为 TYPE_MAP_LIST 的条目计算出文件的大小和起始地址，也很好的提供了一种解决思路。</p>
+<p>使用方法：</p>
+<p>FRIDA-DEXDump使用十分的简单，详细参考github：<a target="_blank" rel="noopener" href="https://github.com/hluwa/frida-dexdump">FRIDA-DEXDump</a></p>
+<p>这里引用一张大佬星球的使用流程图，非常详细，快速进行脱壳</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_B9QRRUTD84V82ZK.png" srcset="/img/loading.gif" lazyload alt="image-20220613161015961"></p>
+<p>我们简单演示一下，这里结合objection一起使用</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_CKUHKWSX46DS2N7.png" srcset="/img/loading.gif" lazyload alt="image-20220613224143108"></p>
+<p>然后再次打开脱下来的dex，即可</p>
+<h4 id="（2）FDex2"><a href="#（2）FDex2" class="headerlink" title="（2）FDex2"></a>（2）FDex2</h4><p>Fdex2主要是利用Android7.0及版本以下的特殊API <code>getDex()</code>来进行脱壳，原本是基于Xposed的模块，不过掌握原理后，大家可以使用各种Hook框架去实现,参考链接：<a target="_blank" rel="noopener" href="https://bbs.pediy.com/thread-224105.htm">安卓xposed脱壳工具FDex2</a></p>
+<h4 id="（3）其他工具"><a href="#（3）其他工具" class="headerlink" title="（3）其他工具"></a>（3）其他工具</h4><p>针对整体壳的脱壳工具有很多，无非是针对各种脱壳点再采用不同的方法，其原理是殊途同归，而基于源码定制的Fart、youpk等等针对整体加壳壳都可以基本实现完全的脱壳，而且抽取壳也有着很好的效果，下面我们就依次来讲述具体的脱壳方法原理，各种脱壳工具如下图所示：</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_DC5HB2MNH48RB28.png" srcset="/img/loading.gif" lazyload alt="image-20220613162509955"></p>
+<h3 id="2-Hook脱壳法"><a href="#2-Hook脱壳法" class="headerlink" title="2.Hook脱壳法"></a>2.Hook脱壳法</h3><p>我们前面知道了，只要函数中包含DexFile对象，我们就可以通过Hook技术拿到对象，然后取到begin和size，从而进行脱壳，市面上使用较多的无非是Xposed和frida，我平时使用frida较为方便，这里也用frida和大家演示：</p>
+<p>首先我们使用GDA识别加壳程序</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_TU56BFRM8CJGT37.png" srcset="/img/loading.gif" lazyload alt="image-20220613164418413"></p>
+<p>很明显是进行了整体加壳，有没其他加壳暂时不知道，我们先进行脱壳</p>
+<p>找到脱壳点</p>
+<p>通过IDA打开<code>libart.so</code>，搜索DexFile，我们可以找到海量的脱壳点</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_TC423VFDNC9CRXV.png" srcset="/img/loading.gif" lazyload alt="image-20220613164747966"></p>
+<p>我们就随便找一个包含DexFile的脱壳函数，然后记录符号值</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_BWCY4SWHRTCQ283.png" srcset="/img/loading.gif" lazyload alt="image-20220613164841377"></p>
+<p>然后我们编写hook脚本</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_6V47P8SJQFRRV4M.png" srcset="/img/loading.gif" lazyload alt="image-20220613172003659"></p>
+<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ada">这里之所以获取<span class="hljs-keyword">begin</span>加上一个指针，是因为我们前面讲了dexfile含有一个虚函数地址，所以加上一个指针偏移<br></code></pre></td></tr></table></figure>
+
+<p>然后启动frida_server</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_VGGG2SNEEHDHFY7.png" srcset="/img/loading.gif" lazyload alt="image-20220613170608657"></p>
+<p>附加进程进行dump，这里我们存在sdcard下面，所以需要提前赋予sdcard权限</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_TN977TFA84YVTZ9.png" srcset="/img/loading.gif" lazyload alt="image-20220613172109177"></p>
+<p>这里就脱壳成功</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_E7HWJDDJN5XDHQF.png" srcset="/img/loading.gif" lazyload alt="image-20220613172222202"></p>
+<p>然后我们打开相应的dex</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_DHAKWU3K8GSXESP.png" srcset="/img/loading.gif" lazyload alt="image-20220613172222202"></p>
+<p>此时说明我们整体脱壳成功，不过应用还有抽取壳，这个不是本文解决的内容</p>
+<h3 id="3-插桩脱壳法"><a href="#3-插桩脱壳法" class="headerlink" title="3.插桩脱壳法"></a>3.插桩脱壳法</h3><p>插桩脱壳法，就是在Android源码里面定位到相应的脱壳点，然后插入相应的代码，重新编译源码生成系统镜像，最后就可以使用定制的系统进行脱壳</p>
+<p>我们在<a target="_blank" rel="noopener" href="https://bbs.pediy.com/thread-269575.htm">源码编译（1）——Android6.0源码编译详解</a>中已经讲述了如何编译源码，接下来我们进行插桩脱壳</p>
+<p>同理、还是定位脱壳点，我们还是随便定位一个脱壳点LoadMethod 然后进行插桩</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_3SKERM5ZAKPEVFC.png" srcset="/img/loading.gif" lazyload alt="image-20220613220518548"></p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs perl">/<span class="hljs-string">``</span>/<span class="hljs-string">``</span>add<span class="hljs-string">``</span>char dexfilepath[<span class="hljs-string">``</span><span class="hljs-number">100</span><span class="hljs-string">``</span>]<span class="hljs-string">``</span>=<span class="hljs-string">``</span><span class="hljs-number">0</span><span class="hljs-string">``</span>;<span class="hljs-string">``</span>memset(dexfilepath,<span class="hljs-string">``</span><span class="hljs-number">0</span><span class="hljs-string">``</span>,<span class="hljs-string">``</span><span class="hljs-number">100</span><span class="hljs-string">``</span>);<span class="hljs-string">``</span><span class="hljs-keyword">sprintf</span>(dexfilepath,<span class="hljs-string">``</span><span class="hljs-string">&quot;%d_%zu_LoadMethod.dex&quot;</span><span class="hljs-string">``</span>,getpid(),dex_file.Size());<span class="hljs-string">``</span><span class="hljs-keyword">int</span><span class="hljs-string">` `</span>dexfd <span class="hljs-string">``</span>=<span class="hljs-string">` `</span><span class="hljs-keyword">open</span><span class="hljs-string">``</span>(dexfilepathm,O_CREAT|O_RDWR,<span class="hljs-string">``</span><span class="hljs-number">666</span><span class="hljs-string">``</span>);<span class="hljs-string">``</span><span class="hljs-keyword">if</span><span class="hljs-string">``</span>(dexfd&gt;<span class="hljs-string">``</span><span class="hljs-number">0</span><span class="hljs-string">``</span>)&#123;<span class="hljs-string">``</span>  <span class="hljs-string">``</span><span class="hljs-keyword">int</span><span class="hljs-string">` `</span>result <span class="hljs-string">``</span>=<span class="hljs-string">` `</span><span class="hljs-keyword">write</span>(dexfd,dex_file.Begin(),dex_file.Size());<span class="hljs-string">``</span>  <span class="hljs-string">``</span><span class="hljs-keyword">if</span><span class="hljs-string">``</span>(result&gt;<span class="hljs-string">``</span><span class="hljs-number">0</span><span class="hljs-string">``</span>)&#123;<span class="hljs-string">``</span>    <span class="hljs-string">``</span><span class="hljs-keyword">close</span>(dexfd);<span class="hljs-string">``</span>    <span class="hljs-string">``</span>LOG(WARNING)&lt;&lt;<span class="hljs-string">``</span><span class="hljs-string">&quot;LoadMethod&quot;</span><span class="hljs-string">``</span>&lt;&lt;dexfilepath;<span class="hljs-string">``</span>  <span class="hljs-string">``</span>&#125;<span class="hljs-string">` `</span>&#125;<span class="hljs-string">``</span>/<span class="hljs-string">``</span>/<span class="hljs-string">``</span>add<br></code></pre></td></tr></table></figure>
+
+<p>显示详细信息</p>
+<p>同理我们在<code>execute</code>同样插桩此段代码，最后进行编译，编译成功</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_A9VEF93XZXNSNK8.png" srcset="/img/loading.gif" lazyload alt="image-20220613172222202"></p>
+<p>然后给程序授权sdcard权限，再次启动应用，就可以看见脱取的dex文件就保存在sdcard目录下</p>
+<p><img src="https://bbs.pediy.com/97.png" srcset="/img/loading.gif" lazyload alt="image-20220613215956911"></p>
+<p>再次将sdcard下dex文件打开，这里我们已经看见了8732435这个文件，再次打开脱取成功</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_DHAKWU3K8GSXESP.png" srcset="/img/loading.gif" lazyload alt="image-20220613172222202"></p>
+<h3 id="4-反射脱壳法"><a href="#4-反射脱壳法" class="headerlink" title="4.反射脱壳法"></a>4.反射脱壳法</h3><p>反射脱壳法的核心思想就是利用前面我们提到的mCooike值</p>
+<figure class="highlight d"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs d">核心思路：反射 <span class="hljs-string">``</span>+<span class="hljs-string">` `</span>mCookie<span class="hljs-string">``</span>步骤：<span class="hljs-string">``</span><span class="hljs-number">1</span><span class="hljs-string">``</span>、找到加固apk的任一<span class="hljs-string">``c</span>lass<span class="hljs-string">``</span>，一般选择主Application或Activity<span class="hljs-string">``</span><span class="hljs-number">2</span><span class="hljs-string">``</span>、通过该类找到对应的Classloader<span class="hljs-string">``</span><span class="hljs-number">3</span><span class="hljs-string">``</span>、通过该Classloader找到BaseDexClassLoader<span class="hljs-string">``</span><span class="hljs-number">4</span><span class="hljs-string">``</span>、通过BaseDexClassLoader找到其字段DexPathList<span class="hljs-string">``</span><span class="hljs-number">5</span><span class="hljs-string">``</span>、通过DexPathList找到其变量Element数组dexElements<span class="hljs-string">``</span><span class="hljs-number">6</span><span class="hljs-string">``</span>、迭代该数组，该数组内部包含DexFile结构<span class="hljs-string">``</span><span class="hljs-number">7</span><span class="hljs-string">``</span>、通过DexFile获取其变量mCookie和mFileName<span class="hljs-string">` `</span>至此我们已经获取了mCookie<span class="hljs-string">` `</span>对该mCookie的解释:<span class="hljs-string">``</span>#<span class="hljs-number">1</span>、<span class="hljs-number">4.4</span>以下好像，mCookie对应的是一个<span class="hljs-keyword">int</span>值，该值是指向native层内存中的dexfile的指针<span class="hljs-string">``</span>#<span class="hljs-number">2</span>、<span class="hljs-number">5.0</span>是一个<span class="hljs-built_in">long</span>值，该值指向native层std::vector&lt;<span class="hljs-keyword">const</span> DexFile*&gt;* 指针，注意这里有多个dex，你需要找到你要的<span class="hljs-string">``</span>#<span class="hljs-number">3</span>、<span class="hljs-number">8.0</span>，该值也是一个<span class="hljs-built_in">long</span>型的值，指向底层vector，但是vector下标<span class="hljs-number">0</span>是oat文件，从<span class="hljs-number">1</span>开始是dex文件<span class="hljs-string">``</span>/<span class="hljs-string">``</span>/<span class="hljs-string">` `</span>至于你手机是那个版本，如果没有落入我上面描述的，你需要自己看看代码<span class="hljs-string">` `</span><span class="hljs-number">8</span><span class="hljs-string">``</span>、根据mCookie对应的值做转换，最终你能找到dexfile内存指针<span class="hljs-string">``</span><span class="hljs-number">9</span><span class="hljs-string">``</span>、把该指针转换为dexfile结构，通过findClassDef来匹配你所寻找的dex是你要的dex<span class="hljs-string">``</span><span class="hljs-number">10</span><span class="hljs-string">``</span>、dump写文件<br></code></pre></td></tr></table></figure>
+
+<p>显示详细信息</p>
+<p>综述mCookie是在native层就是dexfile的指针，我们利用反射原理来获取mCookie，从而就可以进行脱壳了，这里我们同样使用frida演示：</p>
+<p>编写hook代码</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_AST7YFB8U7KAPUW.png" srcset="/img/loading.gif" lazyload alt="image-20220613190231102"></p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_G9A6TCJ8RHYCJPB.png" srcset="/img/loading.gif" lazyload alt="image-20220613190303491"></p>
+<p>我们看见了和上面同样大小的8841876_mCookie.dex</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_DPU2G6VP2W8AGFT.png" srcset="/img/loading.gif" lazyload alt="image-20220613190401266"></p>
+<p>使用工具打开，发现同样脱壳成功</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_7NS398ERHB8V476.png" srcset="/img/loading.gif" lazyload alt="image-20220613190438224"></p>
+<h3 id="5-动态调试脱壳法"><a href="#5-动态调试脱壳法" class="headerlink" title="5.动态调试脱壳法"></a>5.动态调试脱壳法</h3><p>所谓动态调试法，核心原理和上面一样，就是我们在动态调试的过程中找到DexFile的起始地址和大小，然后执行脚本进行dump</p>
+<p>首先选取脱壳点，我们还是选择<code>DexFile::DexFile</code></p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_VUKFUET2WH2G8HM.png" srcset="/img/loading.gif" lazyload alt="image-20220613210130186"></p>
+<p>动态调试的步骤我在前面的文章中已经做了详细的讲解，不会的朋友去看前面的文章</p>
+<p>首先我们启动android_server</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_N4CAU6X29TQ5CMT.png" srcset="/img/loading.gif" lazyload alt="image-20220613194111711"></p>
+<p>然后我们附加上进程</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_A4VHQBKZNJFESXM.png" srcset="/img/loading.gif" lazyload alt="image-20220613194326114"></p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_MJA6UTHVQM6M8RB.png" srcset="/img/loading.gif" lazyload alt="image-20220613195349008"></p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_NK9UQCKAH22N9GY.png" srcset="/img/loading.gif" lazyload alt="image-20220613203024990"></p>
+<p>然后我们打开libart.so，并定位到DexFile::DexFile</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_88B2CXXK96K8YT6.png" srcset="/img/loading.gif" lazyload alt="image-20220613210859021"></p>
+<p>然后在该函数下断点，然后F9过来</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_RD7MFCWRA2TBWJG.png" srcset="/img/loading.gif" lazyload alt="image-20220613211145356"></p>
+<p>此处我们就可以很明显看到X1就是我们的起始地址，X4是我们的偏移值</p>
+<p>编写脚本进行hook</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ruby">static main(void)&#123;  <span class="hljs-string">``</span>  <span class="hljs-string">``</span>auto fp, <span class="hljs-keyword">begin</span>, <span class="hljs-keyword">end</span>, dexbyte;   <span class="hljs-string">``</span>  <span class="hljs-string">``</span>fp <span class="hljs-string">``</span>=<span class="hljs-string">` `</span>fopen(<span class="hljs-string">``</span><span class="hljs-string">&quot;d:\\dump.dex&quot;</span><span class="hljs-string">``</span>, <span class="hljs-string">``</span><span class="hljs-string">&quot;wb+&quot;</span><span class="hljs-string">``</span>);   <span class="hljs-string">``</span>  <span class="hljs-string">``</span><span class="hljs-keyword">begin</span> <span class="hljs-string">``</span>=<span class="hljs-string">` `</span><span class="hljs-number">0x76FCD93020</span><span class="hljs-string">``</span>;  <span class="hljs-string">``</span>  <span class="hljs-string">``</span><span class="hljs-keyword">end</span> <span class="hljs-string">``</span>=<span class="hljs-string">` `</span><span class="hljs-keyword">begin</span> <span class="hljs-string">``</span>+<span class="hljs-string">` `</span><span class="hljs-number">0x7EEC5600</span><span class="hljs-string">``</span>;<span class="hljs-string">``</span>  <span class="hljs-string">``</span><span class="hljs-keyword">for</span><span class="hljs-string">` `</span>( dexbyte <span class="hljs-string">``</span>=<span class="hljs-string">` `</span><span class="hljs-keyword">begin</span>; dexbyte&lt;<span class="hljs-keyword">end</span>;dexbyte<span class="hljs-string">``</span>+<span class="hljs-string">``</span>+<span class="hljs-string">``</span>)<span class="hljs-string">``</span>  <span class="hljs-string">``</span>&#123;<span class="hljs-string">``</span>  <span class="hljs-string">``</span>fputc(<span class="hljs-title class_">Byte</span>(dexbyte), fp);    <span class="hljs-string">``</span>  <span class="hljs-string">``</span>&#125; <span class="hljs-string">` `</span>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_YR5NB8X8376PY2D.png" srcset="/img/loading.gif" lazyload alt="image-20220613214647627"></p>
+<p>直接运行run</p>
+<p>然后我们查看dump.dex文件</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_H6PK6RS65D67D7W.png" srcset="/img/loading.gif" lazyload alt="image-20220613223330340"></p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_X8PM73N62QYQ5HK.png" srcset="/img/loading.gif" lazyload alt="image-20220613215148251"></p>
+<p>我们可以发现这里是代理类，还没有到我们想要的dex，我们再次F9，再次到这里，地址再次改变，再次结合长度来计算，我们每次计算可以取小点值，先试一下</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_PPQMMV4MPRTE24E.png" srcset="/img/loading.gif" lazyload alt="image-20220613215343895"></p>
+<p>发现还是不是，我们需要不停测试直到dump出dex为此</p>
+<p>这里大家可以下去按照此方法尝试，或者换一个脱壳点来尝试</p>
+<h3 id="6-特殊API脱壳法"><a href="#6-特殊API脱壳法" class="headerlink" title="6.特殊API脱壳法"></a>6.特殊API脱壳法</h3><p>所谓特殊的API脱壳法就是通过Android自身提供的API来获得Dex，这主要是参考Fdex2，前面我们讲了Fdex2主要是利用Android7.0及以下提供了getDex()和getBytes()两个API，我们可以直接可以获得class对象，然后直接调用这两个API</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_RP8TR8UMH3WVQZN.png" srcset="/img/loading.gif" lazyload alt="image-20220613191047342"></p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_AD9VCKDKHNADVH3.png" srcset="/img/loading.gif" lazyload alt="image-20220613191158377"></p>
+<p>编写hook代码：</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_SVYRXHYJSQ5X8V5.png" srcset="/img/loading.gif" lazyload alt="image-20220613192251923"></p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs arcade"><span class="hljs-number">1.</span><span class="hljs-string">``</span>使用frida枚举所有Classloader<span class="hljs-string">``</span><span class="hljs-number">2.</span><span class="hljs-string">``</span>确定正确的ClassLoader并获取目标类的Class对象<span class="hljs-string">``</span><span class="hljs-number">3.</span><span class="hljs-string">``</span>通过Class对象获取得到dex对象<span class="hljs-string">``</span><span class="hljs-number">4.</span><span class="hljs-string">``</span>通过dex对象获取内存字节流并保存<br></code></pre></td></tr></table></figure>
+
+<p>然后我们查看程序的类对象，随便dump一个类对象</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_J7X2KNVBH2YVPHQ.png" srcset="/img/loading.gif" lazyload alt="image-20220613191722932"></p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_7UATJ4A4DV6QK5P.png" srcset="/img/loading.gif" lazyload alt="image-20220613192447143"></p>
+<p>然后我们再次用工具打开</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_BJ38Z6649X4TVTZ.png" srcset="/img/loading.gif" lazyload alt="image-20220613192548342"></p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_QURQ9CN7SS48V8F.png" srcset="/img/loading.gif" lazyload alt="image-20220613192659791"></p>
+<p>发现就可以成功的dump</p>
+<p>通过这种方式，我们发现神奇的事我们还可以抽取壳的情况，比如我们之前为空类</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_UFMR5YPKHZQZ5PR.png" srcset="/img/loading.gif" lazyload alt="image-20220613192926853"></p>
+<p>我们明显可以发现这里是采用了函数抽取的技术，一般的一代壳dump方案是无法解决抽取壳的，我们使用特殊API方法</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_8Z7P3YBWGTJTJ27.png" srcset="/img/loading.gif" lazyload alt="image-20220613193028308"></p>
+<p>再次打开，成功dump</p>
+<p><img src="https://bbs.pediy.com/upload/attach/202206/905443_GUASR6BRXFUXTJ6.png" srcset="/img/loading.gif" lazyload alt="image-20220613193102209"></p>
+<p>这其实主要是抽取壳的一个回填时机的问题，这个详细放在以后抽取壳中讲解</p>
+<h2 id="六、实验总结"><a href="#六、实验总结" class="headerlink" title="六、实验总结"></a>六、实验总结</h2><p>首先感谢寒冰大佬的FART技术文章，揭露了ART加壳的本质，整体加壳已经有很多大佬研究透彻，这里只是做个简单的总结。<br>本文总结了当下dex整体加壳的基本原理，和常用的一些脱壳方案，并一一进行复现，还有一些文件监控法等，由于我平时用的很少就没列举了，复现实验过程中由于涉及到不同的实验，所以我用了Android 6.0 Android 7.0 Android 8.0三台机器进行实验，所以大家可以注意下对应的方法和其Android版本，这里彻底解决了整体加壳的脱壳方案，到这里可以掌握脱壳、抓包、Hook、反Hook、反调、反签等基本手段，这样在进行Android App漏洞挖掘过程中将事半功倍。后面我将继续讲解Android App漏洞中的XSS漏洞、Sql注入漏洞、文件上传漏洞、端口扫描漏洞、WebView漏洞等。</p>
+<p>脱壳脚本相关样本会放在github，所有的脱壳脚本和工具和上传知识星球</p>
+<p>github：<a target="_blank" rel="noopener" href="https://github.com/WindXaa">github</a></p>
+<h2 id="七、参考文献"><a href="#七、参考文献" class="headerlink" title="七、参考文献"></a>七、参考文献</h2><figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs lasso">https:<span class="hljs-string">``</span>/<span class="hljs-string">``</span>/<span class="hljs-string">``</span>bbs.pediy.com<span class="hljs-string">``</span>/<span class="hljs-string">``</span><span class="hljs-keyword">thread</span><span class="hljs-string">``</span>-<span class="hljs-string">``</span><span class="hljs-number">252630.</span>htm<span class="hljs-string">``</span>#msg_header_h2_4<span class="hljs-string">``</span>https:<span class="hljs-string">``</span>/<span class="hljs-string">``</span>/<span class="hljs-string">``</span>bbs.pediy.com<span class="hljs-string">``</span>/<span class="hljs-string">``</span><span class="hljs-keyword">thread</span><span class="hljs-string">``</span>-<span class="hljs-string">``</span><span class="hljs-number">254555.</span>htm<span class="hljs-string">``</span>#msg_header_h2_4<span class="hljs-string">``</span>https:<span class="hljs-string">``</span>/<span class="hljs-string">``</span>/<span class="hljs-string">``</span>www.anquanke.com<span class="hljs-string">``</span>/<span class="hljs-string">``</span>post<span class="hljs-string">``</span>/<span class="hljs-string">``</span>id<span class="hljs-string">``</span>/<span class="hljs-string">``</span><span class="hljs-number">221905</span><span class="hljs-string">``</span>?display<span class="hljs-string">``</span>=<span class="hljs-string">``</span>mobile<span class="hljs-string">``</span>https:<span class="hljs-string">``</span>/<span class="hljs-string">``</span>/<span class="hljs-string">``</span>www.qj301.com<span class="hljs-string">``</span>/<span class="hljs-string">``</span>news<span class="hljs-string">``</span>/<span class="hljs-string">``</span><span class="hljs-number">317.</span>html<br></code></pre></td></tr></table></figure>
+
+
+
+<p><a target="_blank" rel="noopener" href="https://bbs.pediy.com/thread-273214.htm">2022 KCTF春季赛【最佳人气奖】火热评选中！快来投票吧～</a></p>
+<p>最后于 1天前 被随风而行aa编辑 ，原因：</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8/" class="category-chain-item">移动安全</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8/" class="print-no-link">#移动安全</a>
+      
+        <a href="/tags/HOOK/" class="print-no-link">#HOOK</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>整体加壳原理和脱壳技巧详解</div>
+      <div>https://freedom1203.github.io/2023/08/31/整体加壳原理和脱壳技巧详解/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Freedom 1203</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年8月31日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/08/31/Android%E9%80%86%E5%90%91%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0/" title="Android逆向基础学习">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Android逆向基础学习</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
